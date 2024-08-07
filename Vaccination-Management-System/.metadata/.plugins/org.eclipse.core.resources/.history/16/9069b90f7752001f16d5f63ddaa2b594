@@ -1,0 +1,29 @@
+package com.app.entities;
+
+import javax.persistence.*;
+
+import lombok.*;
+
+@Entity
+@Table(name = "vaccination_center")
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class VaccinationCenter extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "center_id")
+    private Long centerId;
+
+    @Column(name = "center_name", length = 255)
+    private String centerName;
+
+    @Column(name = "phone_number", length = 15)
+    private String phoneNumber;
+
+    @OneToOne
+    @JoinColumn(name = "addressId")
+    private Address address;
+}

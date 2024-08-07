@@ -1,0 +1,13 @@
+package com.app.repo;
+
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.app.entities.Patient;
+
+public interface IPatientRepo extends JpaRepository<Patient, Long> {
+	Patient findByEmailAndPassword(String email, String password);
+
+	Optional<Patient> findByIdAndAddress_AddressId(Long patientId, Long addressId);
+}

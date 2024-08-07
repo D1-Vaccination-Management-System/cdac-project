@@ -1,0 +1,16 @@
+package com.app.service;
+
+import com.app.dto.AddPatientDTO;
+import com.app.dto.AddressDTO;
+import com.app.entities.Patient;
+import com.app.exception.ApiException;
+
+public interface IPatientService {
+	Patient addPatientDetials(AddPatientDTO patient);
+
+	Patient loginPatient(String email, String pass);
+
+	AddressDTO getAddressDetails(Long patientId, Long addressId) throws ApiException;
+
+	Patient updateAddress(Long patientId, Long addressId, AddressDTO addressDTO) throws ApiException;
+}

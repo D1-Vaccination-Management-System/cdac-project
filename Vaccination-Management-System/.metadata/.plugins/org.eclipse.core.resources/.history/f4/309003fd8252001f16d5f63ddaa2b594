@@ -1,0 +1,36 @@
+package com.app.service;
+
+import javax.transaction.Transactional;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.app.dto.DoctorDto;
+import com.app.entities.Doctor;
+import com.app.exception.ApiException;
+import com.app.repo.IDoctorRepo;
+
+@Service
+@Transactional
+public class DoctorService implements IDoctorService {
+	@Autowired
+	private IDoctorRepo doctorRepo;
+	@Autowired
+	private ModelMapper mapper;
+
+	@Override
+	public Doctor addDoctorDetails(DoctorDto doctorDto) {
+		if (doctorDto.getSpecializationDto() == null) {
+			throw new ApiException("Specialization cannot be null");
+		}
+		return doctorRepo.save(mapper.map(doctorDto, Doctor.class));
+	}
+
+	public void deleteDoctor(Long id) {
+		if (!doctorRepo.existsById(id)) {
+			throw new ApiException("Doctor with id " + id + " not found");
+		}
+		doctorRepo.deleteById(id);
+	}
+}

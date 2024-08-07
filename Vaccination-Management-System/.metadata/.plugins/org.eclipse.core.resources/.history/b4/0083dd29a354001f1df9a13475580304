@@ -1,0 +1,56 @@
+package com.app.entities;
+
+import java.time.LocalDate;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "appointments")
+public class Appointments extends BaseEntity {
+	
+	@Id
+	@Column(name = "appointment_id", nullable = false)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long appointmentId;
+	
+	@Column(name = "patient_id", nullable = false)
+	private Long patientId;
+
+	@Column(name = "doctor_id", nullable = false)
+	private Long doctorId; 
+
+	@Column(name = "vaccine_id", nullable = false)
+	private Long vaccineId; 
+	
+
+	@Column(name = "appointment_datetime", nullable = false)
+	@CreationTimestamp
+	private LocalDate appointmentDatetime;
+	
+
+	@Column(name = "appointment_type_id", nullable = false)
+	private Long appointmentTypeId; 
+	
+	
+	@Column(name = "appointment_status_id", nullable = false)
+	private Long appointmentStatusId;
+	
+
+}

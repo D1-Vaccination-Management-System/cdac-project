@@ -1,0 +1,32 @@
+package com.app.service;
+
+import javax.transaction.Transactional;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.app.dto.AddPateintDTO;
+import com.app.entities.Patient;
+import com.app.repo.IPatientRepo;
+
+@Service
+@Transactional
+public class PatientService implements IPatientService {
+
+	@Autowired
+	private IPatientRepo patientRepo;
+
+	@Autowired
+	private ModelMapper mapper;
+
+	@Override
+	public String addPatientDetials(AddPateintDTO patientDto) {
+		return patientRepo.save(mapper.map(patientDto, Patient.class));
+	}
+
+	@Override
+	public Patient loginPatient(String email, String pass) {
+		return patientRepo.findByEmailAndPassword(email, pass);
+	}
+}

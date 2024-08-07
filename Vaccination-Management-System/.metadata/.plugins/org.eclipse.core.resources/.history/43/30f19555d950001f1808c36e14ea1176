@@ -1,0 +1,10 @@
+package com.app.repo;
+
+import com.app.entities.Address;
+
+public class newasd {
+	public static void main(String[] args) {
+		Address a = new Address();
+		a.ge
+	}
+}

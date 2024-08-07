@@ -1,0 +1,23 @@
+package com.app.entities;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
+import java.time.LocalDateTime;
+
+@MappedSuperclass
+@Data
+@NoArgsConstructor
+public abstract class BaseEntity {
+
+	@Column(name = "created_at", updatable = false)
+	private LocalDateTime createdAt;
+
+	@Column(name = "updated_at")
+	private LocalDateTime updatedAt;
+
+	@Column(name = "created_by")
+	private String createdBy;
+}

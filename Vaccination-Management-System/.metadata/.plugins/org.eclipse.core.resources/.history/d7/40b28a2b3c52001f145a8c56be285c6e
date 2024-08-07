@@ -1,0 +1,7 @@
+package com.app.service;
+
+import com.app.entities.Patient;
+
+public interface IPatientService {
+	Patient AddPatientDetials(Patient patient);
+}

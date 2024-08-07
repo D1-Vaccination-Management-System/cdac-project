@@ -1,0 +1,31 @@
+package com.app.service;
+
+import javax.transaction.Transactional;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.app.dto.DoctorDto;
+import com.app.entities.Doctor;
+import com.app.repo.IDoctorRepo;
+import com.app.repo.ISpecializationRepo;
+
+@Service
+@Transactional
+public class DoctorService implements IDoctorService {
+	@Autowired
+	private IDoctorRepo doctorRepo;
+	@Autowired
+	private ModelMapper mapper;
+
+	@Override
+	public Doctor addDoctorDetails(DoctorDto doctor) {
+		return doctorRepo.save(mapper.map(doctor, Doctor.class));
+	}
+
+	public void deleteDoctor(Long id) {
+		doctorRepo.deleteById(id);
+	}
+
+}

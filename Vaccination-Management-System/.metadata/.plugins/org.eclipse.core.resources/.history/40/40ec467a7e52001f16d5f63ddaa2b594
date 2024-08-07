@@ -1,0 +1,59 @@
+package com.app.service;
+
+import javax.transaction.Transactional;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.app.dto.DoctorDto;
+import com.app.dto.SpecializationDto;
+import com.app.entities.Doctor;
+import com.app.entities.Specialization;
+import com.app.repo.IDoctorRepo;
+import com.app.repo.ISpecializationRepo;
+
+@Service
+@Transactional
+public class DoctorService implements IDoctorService {
+	@Autowired
+	private IDoctorRepo doctorRepo;
+	@Autowired
+	private ISpecializationRepo specializationRepo;
+	@Autowired
+	private ModelMapper mapper;
+
+	@Override
+	public Doctor addDoctorDetails(DoctorDto doctor) {
+		return doctorRepo.save(mapper.map(doctor, Doctor.class));
+	}
+
+	public DoctorDto updateDoctor(DoctorDto doctorDto) {
+		if (!doctorRepo.existsById(doctorDto.getDoctorId())) {
+			return null;
+		}
+
+		Doctor doctor = model.map(doctorDto, Doctor.class);
+
+		SpecializationDto specializationDto = doctorDto.getSpecializationDto();
+		Specialization specialization = model.map(specializationDto, Specialization.class);
+
+		doctor.setSpecialization(specialization);
+
+		Doctor updatedDoctor = doctorRepo.save(doctor);
+
+		DoctorDto updatedDoctorDto = model.map(updatedDoctor, DoctorDto.class);
+
+		Specialization specializations = updatedDoctor.getSpecialization();
+		SpecializationDto specializationDtos = model.map(specializations, SpecializationDto.class);
+
+		updatedDoctorDto.setSpecializationDto(specializationDtos);
+
+		return updatedDoctorDto;
+	}
+
+	public void deleteDoctor(Long id) {
+		doctorRepo.deleteById(id);
+	}
+
+}

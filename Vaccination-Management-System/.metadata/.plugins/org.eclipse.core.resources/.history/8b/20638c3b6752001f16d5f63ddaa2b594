@@ -1,0 +1,13 @@
+package com.app.service;
+
+import com.app.dto.AddPatientDTO;
+import com.app.dto.AddressDTO;
+import com.app.entities.Patient;
+
+public interface IPatientService {
+	Patient addPatientDetials(AddPatientDTO patient);
+
+	Patient loginPatient(String email, String pass);
+
+	AddressDTO updateId(Long pid, Long aid);
+}

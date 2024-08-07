@@ -1,0 +1,13 @@
+1722766707553	Rename type 'PateintLoginDTO'
+1722772692960	Rename type 'AddPateintDTO'
+1722780214994	Delete element
+1722785880890	Delete element
+1722785912224	Extract interface 'IVaccineService'
+1722785943696	Delete element
+1722785955549	Extract interface 'IVaccinationCenterService'
+1722789861149	Rename type 'AddPatientDTO'
+1722792648840	Rename type 'SpecializationDto'
+1722792660278	Rename type 'DoctorDto'
+1722793247486	Delete element
+1722793256102	Delete element
+1723024523068	Delete elements

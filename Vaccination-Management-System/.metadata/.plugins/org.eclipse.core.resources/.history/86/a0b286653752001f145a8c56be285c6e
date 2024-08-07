@@ -1,0 +1,17 @@
+package com.app.service;
+
+import javax.transaction.Transactional;
+
+import org.springframework.stereotype.Service;
+
+import com.app.entities.Patient;
+
+@Service
+@Transactional
+public class PatientService implements IPatientService {
+
+	@Override
+	public Patient AddPatientDetials(Patient patient) {
+	}
+
+}

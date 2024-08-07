@@ -1,0 +1,9 @@
+package com.app.service;
+
+import com.app.entities.Patient;
+
+public interface IPatientService {
+	Patient addPatientDetials(Patient patient);
+
+	Patient loginPatient(String email, String pass);
+}
