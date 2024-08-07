@@ -1,0 +1,23 @@
+package com.app.service;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.app.dto.AdminDTO;
+import com.app.entities.Admin;
+import com.app.repo.IAdminRepo;
+
+public class AdminService implements IAdminService {
+	@Autowired
+	private IAdminRepo adminRepo;
+
+	@Autowired
+	private ModelMapper mapper;
+
+	public Admin addAdminToCenter(Long centerId, AdminDTO adminDTO) {
+		
+		adminDTO.setCenterId(centerId);
+		
+		return 
+	}
+}

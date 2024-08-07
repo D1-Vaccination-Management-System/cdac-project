@@ -1,7 +1,7 @@
 package com.app.service;
 
-import com.app.dto.PatientDTO;
 import com.app.dto.AddressDTO;
+import com.app.dto.PatientDTO;
 import com.app.entities.Patient;
 
 public interface IPatientService {
@@ -12,4 +12,6 @@ public interface IPatientService {
 	AddressDTO getAddressDetails(Long patientId, Long addressId);
 
 	Patient updateAddress(Long patientId, Long addressId, AddressDTO addressDTO);
+	Patient getPatientWithAllAppointments(Long patientId);
+
 }

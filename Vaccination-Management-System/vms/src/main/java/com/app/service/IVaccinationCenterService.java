@@ -11,5 +11,7 @@ public interface IVaccinationCenterService {
 	ApiResponse updateVaccinationCenter(Long id, VaccinationCenterDTO dto);
 
 	GetVaccinationCenterDetailsDTO getAllDetails(Long id);
+	
+	ApiResponse deleteVaccinationCenter(Long id);
 
 }

@@ -1,0 +1,26 @@
+package com.app.dto;
+
+import com.app.entities.VaccinationCenter;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class AdminDTO {
+	private Long staffId;
+
+	private String firstName;
+
+	private String lastName;
+
+	private String email;
+
+	private String password;
+
+	private String phoneNumber;
+
+	private String aadharCardNumber;
+
+	private VaccinationCenter centerId;
+}

@@ -1,0 +1,16 @@
+package com.app.service;
+
+import com.app.repo.IAdminRepo;
+
+public class AdminService implements IAdminService {
+	@Autowired
+	private IAdminRepo adminRepo;
+
+	@Autowired
+	private ModelMapper mapper;
+
+	public Admin addAdminToCenter(Long centerId, AdminDTO adminDTO) {
+		return ad
+		return null;
+	}
+}

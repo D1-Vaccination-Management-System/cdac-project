@@ -33,3 +33,6 @@
 1723029450111	Delete element
 1723029477296	Rename type 'DoctorDto'
 1723029487152	Rename type 'SpecializationDto'
+1723044544493	Rename type 'AminService'
+1723044764148	Rename type 'IAdmin'
+1723047205821	Rename type 'HeathStaff'

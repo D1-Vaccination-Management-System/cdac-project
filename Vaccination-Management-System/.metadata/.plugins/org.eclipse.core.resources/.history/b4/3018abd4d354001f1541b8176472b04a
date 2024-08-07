@@ -1,0 +1,30 @@
+package com.app.service;
+
+import java.util.Optional;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.app.dto.AdminDTO;
+import com.app.entities.Admin;
+import com.app.entities.VaccinationCenter;
+import com.app.repo.IAdminRepo;
+import com.app.repo.IVaccinationCenterRepo;
+
+public class AdminService implements IAdminService {
+	@Autowired
+	private IAdminRepo adminRepo;
+
+	@Autowired
+	private IVaccinationCenterRepo centerRepo;
+
+	@Autowired
+	private ModelMapper mapper;
+
+	public Admin addAdminToCenter(Long centerId, AdminDTO adminDTO) {
+
+		Optional<VaccinationCenter> vc = centerRepo.findById(centerId);
+
+		return null;
+	}
+}

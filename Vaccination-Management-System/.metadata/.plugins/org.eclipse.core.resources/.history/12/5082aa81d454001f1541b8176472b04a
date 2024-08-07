@@ -1,0 +1,52 @@
+package com.app.service;
+
+import java.util.Optional;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.app.dto.AdminDTO;
+import com.app.entities.Admin;
+import com.app.entities.VaccinationCenter;
+import com.app.repo.IAdminRepo;
+import com.app.repo.IVaccinationCenterRepo;
+
+@Service
+public class AdminService implements IAdminService {
+
+    @Autowired
+    private IAdminRepo adminRepo;
+
+    @Autowired
+    private IVaccinationCenterRepo centerRepo;
+
+    @Autowired
+    private ModelMapper mapper;
+
+    @Override
+    public Admin addAdminToCenter(Long centerId, AdminDTO adminDTO) {
+        // Retrieve the VaccinationCenter by centerId
+        Optional<VaccinationCenter> optionalCenter = centerRepo.findById(centerId);
+        if (!optionalCenter.isPresent()) {
+            throw new RuntimeException("Vaccination Center not found with id: " + centerId);
+        }
+
+        VaccinationCenter center = optionalCenter.get();
+
+        // Create a new Admin entity from the AdminDTO
+        Admin admin = mapper.map(adminDTO, Admin.class);
+
+        // Set the VaccinationCenter to the Admin
+        admin.setCenterId(centerId); // Adjust if necessary to reference the VaccinationCenter directly
+
+        // Save the Admin entity
+        Admin savedAdmin = adminRepo.save(admin);
+
+        // Update the VaccinationCenter to reference the Admin (if needed)
+        center.setAdmin(savedAdmin);
+        centerRepo.save(center);
+
+        return savedAdmin;
+    }
+}

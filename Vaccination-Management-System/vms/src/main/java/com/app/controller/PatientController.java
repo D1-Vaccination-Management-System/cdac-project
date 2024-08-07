@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.dto.PatientDTO;
 import com.app.dto.AddressDTO;
 import com.app.dto.ApiResponse;
+import com.app.dto.PatientDTO;
 import com.app.entities.Patient;
 import com.app.exception.ApiException;
 import com.app.service.IPatientService;
@@ -60,4 +61,9 @@ public class PatientController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
 		}
 	}
+	@GetMapping("/get-patient-with-appointments/{patientId}")
+	public ResponseEntity<?> getPatientWithAllAppointments(@PathVariable Long patientId) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(patientService.getPatientWithAllAppointments(patientId));
+	}
+
 }
