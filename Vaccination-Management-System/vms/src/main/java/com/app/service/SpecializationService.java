@@ -13,35 +13,29 @@ import com.app.dto.SpecializationDTO;
 import com.app.entities.Specialization;
 import com.app.repo.ISpecializationRepo;
 
-
 @Service
 @Transactional
-public class SpecializationService implements ISpecializationService
-{
+public class SpecializationService implements ISpecializationService {
 	@Autowired
 	ISpecializationRepo specializationRepo;
 	@Autowired
 	ModelMapper modelMapper;
-	
-	
+
 	@Override
-	public SpecializationDTO addSpecialization(SpecializationDTO SpecializationDTO) {
-		Specialization specializationEntity = modelMapper.map(SpecializationDTO, Specialization.class);
-		Specialization savedSpecialization =  specializationRepo.save(specializationEntity);
+	public SpecializationDTO addSpecialization(SpecializationDTO specializationDTO) {
+		Specialization specializationEntity = modelMapper.map(specializationDTO, Specialization.class);
+		Specialization savedSpecialization = specializationRepo.save(specializationEntity);
 		return modelMapper.map(savedSpecialization, SpecializationDTO.class);
 	}
-
 
 	@Override
 	public List<SpecializationDTO> getAllspecialization() {
 		// TODO Auto-generated method stub
 		List<Specialization> sList = specializationRepo.findAll();
 		List<SpecializationDTO> sListDto = sList.stream()
-                .map(specialization -> modelMapper.map(specialization, SpecializationDTO.class))
-                .collect(Collectors.toList());
+				.map(specialization -> modelMapper.map(specialization, SpecializationDTO.class))
+				.collect(Collectors.toList());
 		return sListDto;
 	}
-	
-	
-	
+
 }

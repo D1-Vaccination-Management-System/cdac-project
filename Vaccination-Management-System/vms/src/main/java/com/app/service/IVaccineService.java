@@ -4,11 +4,10 @@ import java.util.List;
 
 import com.app.dto.ApiResponse;
 import com.app.dto.VaccineDTO;
-import com.app.entities.Vaccines;
 
 public interface IVaccineService {
 
-	Vaccines addVaccine(VaccineDTO vaccineDTO, Long centerId);
+	ApiResponse addVaccine(VaccineDTO vaccineDTO, Long centerId);
 
 	List<VaccineDTO> getAllVaccines(Long centerId);
 

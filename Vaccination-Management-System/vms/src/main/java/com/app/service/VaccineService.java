@@ -30,12 +30,13 @@ public class VaccineService implements IVaccineService {
 	private IVaccinationCenterRepo vaccinationCenterRepo;
 
 	@Override
-	public Vaccines addVaccine(VaccineDTO vaccineDTO, Long centerId) {
+	public ApiResponse addVaccine(VaccineDTO vaccineDTO, Long centerId) {
 		VaccinationCenter center = vaccinationCenterRepo.findById(centerId)
 				.orElseThrow(() -> new RuntimeException("Center not found"));
 		Vaccines vaccine = mapper.map(vaccineDTO, Vaccines.class);
 		vaccine.setVaccinationCenter(center);
-		return vaccineRepo.save(vaccine);
+		vaccineRepo.save(vaccine);
+		return new ApiResponse("Vaccine added Successfully");
 	}
 
 	@Override

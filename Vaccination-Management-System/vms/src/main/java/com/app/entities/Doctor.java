@@ -3,7 +3,6 @@ package com.app.entities;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,8 +26,8 @@ public class Doctor extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "doctor_id")
 	@JsonProperty(access = Access.READ_ONLY)
+	@Column(name = "doctor_id")
 	private Long doctorId;
 
 	@Column(name = "first_name", length = 30)
@@ -43,14 +42,19 @@ public class Doctor extends BaseEntity {
 	@Column(name = "phone_number", length = 15)
 	private String phoneNumber;
 
+	@OneToOne
+	@JoinColumn(name = "address_id", nullable = true)
+	private Address address;
+
 	@Column(name = "aadhar_card_number", columnDefinition = "CHAR(12)", unique = true, nullable = false)
 	private String aadharCardNumber;
 
-	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "specialization_id", nullable = false)
-	private Specialization specialization;
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(nullable = true)
+	Specialization specialization;
 
-	@Column(name = "years_of_experience")
-	private int yearsOfExperience;
+	private Integer yearsOfExperience;
+
+	private String createdBy;
 
 }

@@ -1,12 +1,12 @@
 package com.app.service;
 
+import com.app.dto.ApiResponse;
 import com.app.dto.DoctorDTO;
-import com.app.entities.Doctor;
 
 public interface IDoctorService {
-	Doctor addDoctorDetails(DoctorDTO doctor);
+	DoctorDTO addDoctorDetails(DoctorDTO doctor);
 
-	void deleteDoctor(Long id);
+	ApiResponse updateDoctor(Long id,DoctorDTO doctorDTO);
 
-	DoctorDTO updateDoctor(DoctorDTO DoctorDTO);
+	ApiResponse deleteDoctor(Long id);
 }

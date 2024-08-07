@@ -24,15 +24,9 @@ public class AppointmentService implements IAppointmentService {
 	@Override
 	public ApiResponse addAppointment(AppointmentDTO appointmentDTO) {
 		
-		if(!appointmentRepo.existsById(appointmentDTO.getPatientId())) {
-			return new ApiResponse("Patient doesn't exist!");
-		}
-		
-		else {
 			Appointments appointment = mapper.map(appointmentDTO, Appointments.class);
 			appointmentRepo.save(appointment);
 			return new ApiResponse("Appointment Added Successfully!");
-		}
 		
 	}
 }

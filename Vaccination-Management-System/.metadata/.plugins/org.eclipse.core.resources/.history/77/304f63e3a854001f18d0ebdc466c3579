@@ -1,0 +1,11 @@
+package com.app.service;
+
+import com.app.dto.ApiResponse;
+import com.app.dto.AppointmentDTO;
+import com.app.entities.Appointments;
+
+public interface IAppointmentService {
+
+	public ApiResponse addAppointment(AppointmentDTO appointment);
+
+}

@@ -1,0 +1,74 @@
+package com.app.service;
+
+import javax.transaction.Transactional;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.app.dto.DoctorDTO;
+import com.app.dto.SpecializationDTO;
+import com.app.entities.Doctor;
+import com.app.entities.Specialization;
+import com.app.repo.IDoctorRepo;
+import com.app.repo.ISpecializationRepo;
+
+@Service
+@Transactional
+public class DoctorService implements IDoctorService {
+	@Autowired
+	IDoctorRepo doctorRepo;
+	@Autowired
+	ISpecializationRepo specializationRepo;
+	@Autowired
+	ModelMapper model;
+
+	@Override
+	public DoctorDTO addDoctorDetails(DoctorDTO doctor) {
+
+		Doctor doctorEntity = model.map(doctor, Doctor.class);
+		SpecializationDTO SpecializationDTO = doctor.getSpecializationDTO();
+		Specialization specialization = model.map(SpecializationDTO, Specialization.class);
+		doctorEntity.setSpecialization(specialization);
+
+		Doctor savedDoctor = doctorRepo.save(doctorEntity);
+		DoctorDTO savedDoctorDTO = model.map(savedDoctor, DoctorDTO.class);
+
+		// Convert Specialization entities to SpecializationDTO
+		Specialization specializations = savedDoctor.getSpecialization();
+		SpecializationDTO SpecializationDTOs = model.map(specializations, SpecializationDTO.class);
+
+		savedDoctorDTO.setSpecializationDTO(SpecializationDTOs);
+
+		return savedDoctorDTO;
+	}
+
+	public DoctorDTO updateDoctor(DoctorDTO DoctorDTO) {
+		if (!doctorRepo.existsById(DoctorDTO.getDoctorId())) {
+			return null;
+		}
+
+		Doctor doctor = model.map(DoctorDTO, Doctor.class);
+
+		SpecializationDTO SpecializationDTO = DoctorDTO.getSpecializationDTO();
+		Specialization specialization = model.map(SpecializationDTO, Specialization.class);
+
+		doctor.setSpecialization(specialization);
+
+		Doctor updatedDoctor = doctorRepo.save(doctor);
+
+		DoctorDTO updatedDoctorDTO = model.map(updatedDoctor, DoctorDTO.class);
+
+		Specialization specializations = updatedDoctor.getSpecialization();
+		SpecializationDTO SpecializationDTOs = model.map(specializations, SpecializationDTO.class);
+
+		updatedDoctorDTO.setSpecializationDTO(SpecializationDTOs);
+
+		return updatedDoctorDTO;
+	}
+
+	public void deleteDoctor(Long id) {
+		doctorRepo.deleteById(id);
+	}
+
+}

@@ -47,4 +47,5 @@
     <fullyQualifiedTypeName name="lombok.AllArgsConstructor"/>
     <fullyQualifiedTypeName name="javax.persistence.Column"/>
     <fullyQualifiedTypeName name="com.app.dto.SpecializationDTO"/>
+    <fullyQualifiedTypeName name="com.app.dto.DoctorDTO"/>
 </qualifiedTypeNameHistroy>

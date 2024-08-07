@@ -1,0 +1,11 @@
+package com.app.service;
+
+import com.app.dto.DoctorDto;
+
+public interface IDoctorService {
+	DoctorDto addDoctorDetails(DoctorDto doctor);
+
+	DoctorDto updateDoctor(DoctorDto doctorDto);
+
+	void deleteDoctor(Long id);
+}

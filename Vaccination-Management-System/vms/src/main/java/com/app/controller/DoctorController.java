@@ -9,12 +9,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.ApiResponse;
 import com.app.dto.DoctorDTO;
-import com.app.entities.Doctor;
 import com.app.exception.ApiException;
+import com.app.exception.ResourceNotFoundException;
 import com.app.service.IDoctorService;
 
 @RestController
@@ -27,8 +28,20 @@ public class DoctorController {
 	@PostMapping("/add-doctor")
 	public ResponseEntity<?> addDoctorDetails(@RequestBody DoctorDTO DoctorDTO) {
 		try {
-			Doctor createdDoctor = doctorService.addDoctorDetails(DoctorDTO);
+			DoctorDTO createdDoctor = doctorService.addDoctorDetails(DoctorDTO);
 			return ResponseEntity.status(HttpStatus.CREATED).body(createdDoctor);
+		} catch (ApiException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
+		}
+	}
+
+	@PutMapping("/update-doctor")
+	public ResponseEntity<?> updateDoctor(@RequestParam Long id,  @RequestBody DoctorDTO DoctorDTO) {
+		try {
+			
+			return ResponseEntity.ok(doctorService.updateDoctor(id,DoctorDTO));
+		} catch (ResourceNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
 		} catch (ApiException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
 		}
@@ -38,18 +51,11 @@ public class DoctorController {
 	public ResponseEntity<?> deleteDoctor(@PathVariable Long id) {
 		try {
 			doctorService.deleteDoctor(id);
-			return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Deleted Successfully"));
+			return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Doctor details Deleted Successfully"));
+		} catch (ResourceNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
 		} catch (ApiException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage()));
 		}
-	}
-
-	@PutMapping("/update")
-	public ResponseEntity<DoctorDTO> updateDoctor(@RequestBody DoctorDTO DoctorDTO) {
-		DoctorDTO updatedDoctor = doctorService.updateDoctor(DoctorDTO);
-		if (updatedDoctor == null) {
-			return ResponseEntity.notFound().build(); // Handle not found case
-		}
-		return ResponseEntity.ok(updatedDoctor);
 	}
 }
