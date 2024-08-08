@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Delete resource &apos;spring_boot_ems_backend_final&apos;" deleteContents="true" description="Delete resource &apos;spring_boot_ems_backend_final&apos;" element1="/spring_boot_ems_backend_final" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1722783776602"/>
-</session>
