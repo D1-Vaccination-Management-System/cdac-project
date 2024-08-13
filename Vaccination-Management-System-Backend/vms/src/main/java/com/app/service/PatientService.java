@@ -37,7 +37,7 @@ public class PatientService implements IPatientService {
 
 	@Override
 	public AddressDTO getAddressDetails(Long patientId, Long addressId) {
-		Patient patient = patientRepo.findByPatientIdAndAddress_AddressId(patientId, addressId)
+		Patient patient = patientRepo.findByUserIdAndAddress_AddressId(patientId, addressId)
 				.orElseThrow(() -> new ApiException("Patient or address not found"));
 		Address address = patient.getAddress();
 		return new AddressDTO(address.getStreet(), address.getCity(), address.getState(), address.getZipCode());
@@ -45,7 +45,7 @@ public class PatientService implements IPatientService {
 
 	@Override
 	public Patient updateAddress(Long patientId, Long addressId, AddressDTO addressDTO) {
-		Patient patient = patientRepo.findByPatientIdAndAddress_AddressId(patientId, addressId)
+		Patient patient = patientRepo.findByUserIdAndAddress_AddressId(patientId, addressId)
 				.orElseThrow(() -> new ApiException("Patient or address not found"));
 		Address address = patient.getAddress();
 		address.setStreet(addressDTO.getStreet());

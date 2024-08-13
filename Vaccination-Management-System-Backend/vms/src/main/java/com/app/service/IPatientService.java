@@ -12,6 +12,7 @@ public interface IPatientService {
 	AddressDTO getAddressDetails(Long patientId, Long addressId);
 
 	Patient updateAddress(Long patientId, Long addressId, AddressDTO addressDTO);
+
 	Patient getPatientWithAllAppointments(Long patientId);
 
 }

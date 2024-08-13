@@ -5,16 +5,10 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -24,45 +18,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "PATIENTS")
+@Table(name = "patients")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Patient extends BaseEntity {
+public class Patient extends User {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@JsonProperty(access = Access.READ_ONLY)
-	@Column(name = "patient_id")
-	private Long patientId;
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id", nullable = false)
+    private Address address;
 
-	@Column(name = "first_name", length = 30)
-	private String firstName;
-
-	@Column(name = "last_name", length = 30)
-	private String lastName;
-
-	@Column(name = "email", length = 50)
-	private String email;
-
-	@Column(name = "password", length = 100)
-	private String password;
-
-	@Column(name = "phone_number", length = 15)
-	private String phoneNumber;
-
-	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "address_id", nullable = false)
-	private Address address;
-
-	@Column(name = "aadhar_card_number", columnDefinition = "CHAR(12)", unique = true, nullable = false)
-	private String aadharCardNumber;
-
-	@Column(name = "time_registered")
-	@CreationTimestamp
-	private LocalDateTime timeRegistered;
+    @Column(name = "time_registered")
+    @CreationTimestamp
+    private LocalDateTime timeRegistered;
 	
-	@OneToMany(fetch =  FetchType.EAGER,cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "patient_id") 
     private List<Appointments> appointments;
 }

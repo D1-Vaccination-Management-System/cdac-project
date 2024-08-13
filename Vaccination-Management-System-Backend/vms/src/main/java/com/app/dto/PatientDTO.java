@@ -1,5 +1,8 @@
 package com.app.dto;
 
+import com.app.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,5 +20,7 @@ public class PatientDTO {
 	private String phoneNumber;
 	private AddressDTO address;
 	private String aadharCardNumber;
+	@JsonIgnore
+	private Role role = Role.ROLE_PATIENT;
 
 }

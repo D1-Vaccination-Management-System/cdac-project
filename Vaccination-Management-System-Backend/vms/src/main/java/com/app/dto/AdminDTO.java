@@ -1,5 +1,7 @@
 package com.app.dto;
 
+import com.app.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
@@ -30,4 +32,7 @@ public class AdminDTO {
 
 	@JsonProperty(access = Access.READ_ONLY)
 	private AdminVaccineCenterDTO vaccinationCenter;
+
+	@JsonIgnore
+	private Role role;
 }

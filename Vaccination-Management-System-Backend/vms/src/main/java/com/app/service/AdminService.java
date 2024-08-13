@@ -10,6 +10,7 @@ import com.app.dto.AdminDTO;
 import com.app.dto.ApiResponse;
 import com.app.entities.Admin;
 import com.app.entities.VaccinationCenter;
+import com.app.enums.Role;
 import com.app.repo.IAdminRepo;
 import com.app.repo.IVaccinationCenterRepo;
 
@@ -34,11 +35,11 @@ public class AdminService implements IAdminService {
 
 		VaccinationCenter center = optionalCenter.get();
 		Admin admin = mapper.map(adminDTO, Admin.class);
-		if (admin.getAdminId() != null)
+		if (admin.getUserId() != null)
 			throw new IllegalArgumentException("AdminDTO should not have an ID when creating a new Admin");
 
 		admin.setVaccinationCenter(center);
-
+		admin.setRole(Role.ROLE_ADMIN);
 		Admin savedAdmin = adminRepo.save(admin);
 		center.setAdmin(savedAdmin);
 		centerRepo.save(center);
