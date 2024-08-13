@@ -12,6 +12,7 @@ import com.app.entities.Admin;
 import com.app.entities.VaccinationCenter;
 import com.app.enums.Role;
 import com.app.exception.ApiException;
+import com.app.exception.ResourceNotFoundException;
 import com.app.repo.IAdminRepo;
 import com.app.repo.IVaccinationCenterRepo;
 
@@ -27,12 +28,12 @@ public class AdminService implements IAdminService {
 	@Autowired
 	private ModelMapper mapper;
 
-	
 	@Override
 	public Admin loginAdmin(String email, String password) {
 		return adminRepo.findByEmailAndPassword(email, password)
 				.orElseThrow(() -> new ApiException("Invalid email or password"));
 	}
+
 	@Override
 	public ApiResponse addAdminToCenter(Long centerId, AdminDTO adminDTO) {
 		// Retrieve the VaccinationCenter by centerId
@@ -52,6 +53,22 @@ public class AdminService implements IAdminService {
 		centerRepo.save(center);
 
 		return new ApiResponse("Admin added successful");
+	}
+
+	@Override
+	public Admin updateAdmin(String email, AdminDTO adminDTO) {
+
+		Admin admin = adminRepo.findAdminByEmail(email)
+				.orElseThrow(() -> new ResourceNotFoundException("Admin doesn't Exist"));
+		admin.setFirstName(adminDTO.getFirstName());
+		admin.setLastName(adminDTO.getLastName());
+		admin.setEmail(adminDTO.getEmail());
+		admin.setPassword(adminDTO.getPassword());
+		admin.setPhoneNumber(adminDTO.getPhoneNumber());
+		adminRepo.save(admin);
+
+		return admin;
+
 	}
 
 }

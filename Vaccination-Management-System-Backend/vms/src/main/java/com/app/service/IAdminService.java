@@ -10,4 +10,5 @@ public interface IAdminService {
 
 	Admin loginAdmin(String email, String password);
 
+	Admin updateAdmin(String email, AdminDTO adminDTO);
 }

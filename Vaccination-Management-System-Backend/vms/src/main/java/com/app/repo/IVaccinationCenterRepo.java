@@ -13,4 +13,7 @@ public interface IVaccinationCenterRepo extends JpaRepository<VaccinationCenter,
 	boolean existsByCenterName(String name);
 
 	List<VaccinationCenter> findByAddress_CityAndAddress_State(String city, String state);
+	
+	List<VaccinationCenter> findByAddress_ZipCode(String pinCode);
+	
 }

@@ -30,6 +30,11 @@ public class VaccinationController {
 	@Autowired
 	private IVaccinationCenterService vaccinationCenterService;
 
+	@GetMapping("/centers-by-pincode")
+	public List<VaccinationCenterSearchDTO> getCenterByZipCode(@RequestParam String pincode){
+		return vaccinationCenterService.getCenterByZipCode(pincode);
+	}
+	
 	@GetMapping("/centers-by-address")
 	public List<VaccinationCenterSearchDTO> getCentersByLocation(@RequestParam String city, @RequestParam String state) {
 		return vaccinationCenterService.getCentersByCityAndState(city, state);
@@ -53,5 +58,10 @@ public class VaccinationController {
 	@DeleteMapping("/delete-center/{id}")
 	public ResponseEntity<?> deleteVaccinationCenter(@PathVariable Long id) {
 		return ResponseEntity.status(HttpStatus.OK).body(vaccinationCenterService.deleteVaccinationCenter(id));
+	}
+
+	@GetMapping("/get-all-appointments")
+	public ResponseEntity<?> getAllAppointments(@RequestParam Long centerId) {
+		return ResponseEntity.status(HttpStatus.OK).body(vaccinationCenterService.getAllAppointments(centerId));
 	}
 }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { searchCenterByStateAndCity } from "../service/vaccination.controller";
+import { searchCenterByStateAndCity } from "../service/vaccination";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Slider from "react-slick";

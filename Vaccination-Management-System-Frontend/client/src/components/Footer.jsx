@@ -34,7 +34,7 @@ function Footer() {
                     </a>
                   </li>
                   <li>
-                    <Link to="/adminlogin">Admin Login</Link>
+                    <Link to="/admin-login">Admin Login</Link>
                   </li>
                 </ul>
               </div>

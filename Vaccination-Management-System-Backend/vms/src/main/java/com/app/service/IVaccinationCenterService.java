@@ -6,6 +6,7 @@ import com.app.dto.ApiResponse;
 import com.app.dto.GetVaccinationCenterDetailsDTO;
 import com.app.dto.VaccinationCenterDTO;
 import com.app.dto.VaccinationCenterSearchDTO;
+import com.app.entities.Appointments;
 
 public interface IVaccinationCenterService {
 
@@ -19,4 +20,7 @@ public interface IVaccinationCenterService {
 	
 	List<VaccinationCenterSearchDTO> getCentersByCityAndState(String city, String state);
 
+	List<VaccinationCenterSearchDTO> getCenterByZipCode(String pinCode);
+	
+	List<Appointments> getAllAppointments(Long centerId);
 }

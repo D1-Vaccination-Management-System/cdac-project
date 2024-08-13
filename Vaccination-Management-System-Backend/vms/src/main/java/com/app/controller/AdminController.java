@@ -4,10 +4,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.AdminDTO;
@@ -19,6 +22,7 @@ import com.app.service.IAdminService;
 
 @RestController
 @RequestMapping("/admin")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AdminController {
 
 	@Autowired
@@ -40,6 +44,16 @@ public class AdminController {
 			AdminDTO adminDTO = mapper.map(admin, AdminDTO.class);
 			System.out.println(adminDTO.toString());
 			return ResponseEntity.status(HttpStatus.OK).body(adminDTO);
+		} catch (ApiException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
+		}
+	}
+
+	@PutMapping("/update-admin")
+	public ResponseEntity<?> updateAdmin(@RequestParam String email, @RequestBody AdminDTO adminDTO) {
+		try {
+			Admin updatedAdmin = adminService.updateAdmin(email, adminDTO);
+			return ResponseEntity.status(HttpStatus.OK).body(updatedAdmin);
 		} catch (ApiException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
 		}

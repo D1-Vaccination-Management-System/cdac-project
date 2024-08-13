@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -6,6 +6,15 @@ const DoctorConsultationModal = ({ isOpen, onClose }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [fullName, setFullName] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => {
+    // Clear form data when modal is closed
+    if (!isOpen) {
+      setPhoneNumber("");
+      setFullName("");
+      setIsSuccess(false);
+    }
+  }, [isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

@@ -23,9 +23,6 @@ public class AppointmentController {
 	public ResponseEntity<?> addNewAppointmentByPatientId(@RequestBody AppointmentDTO appointmentDTO){
 		return ResponseEntity.ok(appointmentService.addAppointment(appointmentDTO));
 	}
-	
-
-
 		
 }
 

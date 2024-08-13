@@ -13,6 +13,7 @@ import com.app.dto.VaccinationCenterDTO;
 import com.app.dto.VaccinationCenterSearchDTO;
 import com.app.dto.VaccineDTO;
 import com.app.entities.Address;
+import com.app.entities.Appointments;
 import com.app.entities.VaccinationCenter;
 import com.app.exception.ApiException;
 import com.app.exception.ResourceNotFoundException;
@@ -36,10 +37,18 @@ public class VaccinationCenterService implements IVaccinationCenterService {
 	@Autowired
 	private ModelMapper mapper;
 
+	@Override
+	public List<VaccinationCenterSearchDTO> getCenterByZipCode(String pinCode) {
+		List<VaccinationCenter> centers = vaccinationCenter.findByAddress_ZipCode(pinCode);
+		return centers.stream().map(center -> mapper.map(center, VaccinationCenterSearchDTO.class))
+				.collect(Collectors.toList());
+	}
+
+	@Override
 	public List<VaccinationCenterSearchDTO> getCentersByCityAndState(String city, String state) {
 		List<VaccinationCenter> centers = vaccinationCenter.findByAddress_CityAndAddress_State(city, state);
-		return centers.stream().map(center -> mapper.map(center, VaccinationCenterSearchDTO.class)).collect(Collectors.toList());
-		
+		return centers.stream().map(center -> mapper.map(center, VaccinationCenterSearchDTO.class))
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -89,5 +98,11 @@ public class VaccinationCenterService implements IVaccinationCenterService {
 			throw new ResourceNotFoundException("Center doesnt exist");
 
 		return new ApiResponse("Center Deleted Successfully");
+	}
+
+	@Override
+	public List<Appointments> getAllAppointments(Long centerId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

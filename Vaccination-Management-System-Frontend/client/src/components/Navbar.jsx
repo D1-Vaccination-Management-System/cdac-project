@@ -1,11 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import DoctorConsultationModal from "./DoctorConsultationModal"; // Adjust the import path as needed
 
 const MyNavbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
-  const navigate = useNavigate();
+  const closeModal = () => setIsModalOpen(false);
+  const openModal = () => {
+    // Reset form data before opening the modal
+    setIsModalOpen(true);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-900 sticky top-0 z-50">
@@ -31,8 +52,8 @@ const MyNavbar = () => {
 
           {/* 2nd div: Navbar links */}
           <div
-            className="flex items-center  justify-between text-2xl"
-            id="navbar-user "
+            className="flex items-center justify-between text-2xl"
+            id="navbar-user"
           >
             <ul className="flex space-x-8 font-medium p-0 border-none bg-transparent">
               <li>
@@ -53,7 +74,7 @@ const MyNavbar = () => {
                 </Link>
               </li>
 
-              <li className="relative">
+              <li className="relative" ref={dropdownRef}>
                 <button
                   onClick={toggleDropdown}
                   className="text-black pt-2 font-medium rounded-lg text-center inline-flex items-center text-2xl"
@@ -89,12 +110,12 @@ const MyNavbar = () => {
                       aria-labelledby="dropdownDefaultButton"
                     >
                       <li>
-                        <a
-                          href="#"
-                          className="block px-4 py-2 hover:bg-gray-100"
+                        <button
+                          onClick={openModal}
+                          className="block px-4 py-2 hover:bg-gray-100 w-full text-left"
                         >
                           Consult a Doctor
-                        </a>
+                        </button>
                       </li>
                       <li>
                         <a
@@ -124,16 +145,19 @@ const MyNavbar = () => {
           <div className="ml-auto">
             <div className="flex gap-4">
               <button className="transition-all duration-500 ease-in-out border-2 border-black text-black bg-transparent py-3 px-6 font-sans text-center uppercase leading-4 text-[17px] rounded-2xl outline-none hover:bg-blue-500 hover:text-white hover:border-transparent">
-                Log in
+                <Link to="/login">Log in</Link>
               </button>
 
               <button className="transition-all duration-500 ease-in-out border-2 border-black text-black bg-transparent py-3 px-6 font-sans text-center uppercase leading-4 text-[17px] rounded-2xl outline-none hover:bg-blue-500 hover:text-white hover:border-transparent">
-                Sign Up
+                <Link to="/register">Sign Up</Link>
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Doctor Consultation Modal */}
+      <DoctorConsultationModal isOpen={isModalOpen} onClose={closeModal} />
     </nav>
   );
 };
