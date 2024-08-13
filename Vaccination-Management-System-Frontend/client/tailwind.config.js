@@ -4,5 +4,10 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [require("flowbite/plugin"), require("daisyui")],
+
+  daisyui: {
+    themes: false,
+    darkTheme: "light",
+  },
 };

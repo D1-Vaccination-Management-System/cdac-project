@@ -11,6 +11,7 @@ import com.app.dto.ApiResponse;
 import com.app.entities.Admin;
 import com.app.entities.VaccinationCenter;
 import com.app.enums.Role;
+import com.app.exception.ApiException;
 import com.app.repo.IAdminRepo;
 import com.app.repo.IVaccinationCenterRepo;
 
@@ -26,6 +27,12 @@ public class AdminService implements IAdminService {
 	@Autowired
 	private ModelMapper mapper;
 
+	
+	@Override
+	public Admin loginAdmin(String email, String password) {
+		return adminRepo.findByEmailAndPassword(email, password)
+				.orElseThrow(() -> new ApiException("Invalid email or password"));
+	}
 	@Override
 	public ApiResponse addAdminToCenter(Long centerId, AdminDTO adminDTO) {
 		// Retrieve the VaccinationCenter by centerId

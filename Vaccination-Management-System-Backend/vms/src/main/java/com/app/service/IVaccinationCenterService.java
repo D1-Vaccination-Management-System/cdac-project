@@ -1,8 +1,11 @@
 package com.app.service;
 
+import java.util.List;
+
 import com.app.dto.ApiResponse;
 import com.app.dto.GetVaccinationCenterDetailsDTO;
 import com.app.dto.VaccinationCenterDTO;
+import com.app.dto.VaccinationCenterSearchDTO;
 
 public interface IVaccinationCenterService {
 
@@ -13,5 +16,7 @@ public interface IVaccinationCenterService {
 	GetVaccinationCenterDetailsDTO getAllDetails(Long id);
 	
 	ApiResponse deleteVaccinationCenter(Long id);
+	
+	List<VaccinationCenterSearchDTO> getCentersByCityAndState(String city, String state);
 
 }

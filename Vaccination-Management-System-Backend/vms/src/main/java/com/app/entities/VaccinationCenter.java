@@ -37,7 +37,7 @@ public class VaccinationCenter extends BaseEntity {
 	@Column(name = "phone_number", length = 15)
 	private String phoneNumber;
 
-	@OneToOne(cascade = CascadeType.REMOVE)
+	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	@JoinColumn(name = "addressId")
 	private Address address;
 
@@ -48,7 +48,7 @@ public class VaccinationCenter extends BaseEntity {
 	@JoinColumn(name = "admin_id")
 	private Admin admin;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(fetch = FetchType.EAGER ,cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "staff_id")
 	private List<HealthStaff> staff;
 }

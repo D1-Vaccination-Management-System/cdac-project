@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.AddressDTO;
 import com.app.dto.ApiResponse;
+import com.app.dto.LoginDTO;
 import com.app.dto.PatientDTO;
 import com.app.entities.Patient;
 import com.app.exception.ApiException;
@@ -32,9 +33,9 @@ public class PatientController {
 	}
 
 	@PostMapping("/login-user")
-	public ResponseEntity<?> loginPatientUsingEmailAndPass(@RequestParam String email, @RequestParam String password) {
+	public ResponseEntity<?> loginPatientUsingEmailAndPass(@RequestBody LoginDTO login) {
 		try {
-			Patient patient = patientService.loginPatient(email, password);
+			Patient patient = patientService.loginPatient(login.getEmail(), login.getPassword());
 			return ResponseEntity.status(HttpStatus.OK).body(patient);
 		} catch (ApiException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
@@ -61,6 +62,7 @@ public class PatientController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
 		}
 	}
+
 	@GetMapping("/get-patient-with-appointments/{patientId}")
 	public ResponseEntity<?> getPatientWithAllAppointments(@PathVariable Long patientId) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(patientService.getPatientWithAllAppointments(patientId));

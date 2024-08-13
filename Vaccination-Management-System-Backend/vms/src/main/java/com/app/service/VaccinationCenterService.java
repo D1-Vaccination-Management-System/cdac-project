@@ -1,6 +1,7 @@
 package com.app.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.app.dto.ApiResponse;
 import com.app.dto.GetVaccinationCenterDetailsDTO;
 import com.app.dto.VaccinationCenterDTO;
+import com.app.dto.VaccinationCenterSearchDTO;
 import com.app.dto.VaccineDTO;
 import com.app.entities.Address;
 import com.app.entities.VaccinationCenter;
@@ -16,7 +18,6 @@ import com.app.exception.ApiException;
 import com.app.exception.ResourceNotFoundException;
 import com.app.repo.IAddressRepo;
 import com.app.repo.IVaccinationCenterRepo;
-import com.app.repo.IVaccineRepo;
 
 import jakarta.transaction.Transactional;
 
@@ -30,13 +31,16 @@ public class VaccinationCenterService implements IVaccinationCenterService {
 	private IAddressRepo addressRepo;
 
 	@Autowired
-	private IVaccineRepo vaccineRepo;
-	
-	@Autowired
 	private VaccineService vaccineService;
 
 	@Autowired
 	private ModelMapper mapper;
+
+	public List<VaccinationCenterSearchDTO> getCentersByCityAndState(String city, String state) {
+		List<VaccinationCenter> centers = vaccinationCenter.findByAddress_CityAndAddress_State(city, state);
+		return centers.stream().map(center -> mapper.map(center, VaccinationCenterSearchDTO.class)).collect(Collectors.toList());
+		
+	}
 
 	@Override
 	public ApiResponse addVaccinationCenter(VaccinationCenterDTO dto) {
@@ -44,14 +48,14 @@ public class VaccinationCenterService implements IVaccinationCenterService {
 		String centerName = vc.getCenterName().toLowerCase();
 		if (!vaccinationCenter.existsByCenterName(centerName)) {
 			Address address = mapper.map(dto.getAddress(), Address.class);
-	        addressRepo.save(address);
-	        vc.setAddress(address);
-	        vaccinationCenter.save(vc);
-			
+			addressRepo.save(address);
+			vc.setAddress(address);
+			vaccinationCenter.save(vc);
+
 		} else {
 			throw new ApiException("Center Already Exists!");
 		}
-		return new ApiResponse("Vaccination Center Added Successfully");
+		return new ApiResponse("Success");
 	}
 
 	@Override
@@ -76,16 +80,14 @@ public class VaccinationCenterService implements IVaccinationCenterService {
 		List<VaccineDTO> vaccines = vaccineService.getAllVaccines(id);
 		return new GetVaccinationCenterDetailsDTO(mapper.map(center, VaccinationCenterDTO.class), vaccines);
 	}
-	
+
 	@Override
-	public ApiResponse deleteVaccinationCenter(Long id)
-	{
-		if(vaccinationCenter.existsById(id)){
+	public ApiResponse deleteVaccinationCenter(Long id) {
+		if (vaccinationCenter.existsById(id)) {
 			vaccinationCenter.deleteById(id);
-		}
-		else
+		} else
 			throw new ResourceNotFoundException("Center doesnt exist");
-		
+
 		return new ApiResponse("Center Deleted Successfully");
 	}
 }
