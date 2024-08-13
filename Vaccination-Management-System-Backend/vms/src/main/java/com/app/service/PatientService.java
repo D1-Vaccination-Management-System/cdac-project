@@ -8,6 +8,7 @@ import com.app.dto.AddressDTO;
 import com.app.dto.PatientDTO;
 import com.app.entities.Address;
 import com.app.entities.Patient;
+import com.app.enums.Role;
 import com.app.exception.ApiException;
 import com.app.exception.ResourceNotFoundException;
 import com.app.repo.IPatientRepo;
@@ -26,6 +27,7 @@ public class PatientService implements IPatientService {
 
 	@Override
 	public Patient addPatientDetails(PatientDTO patient) {
+		patient.setRole(Role.ROLE_PATIENT);
 		return patientRepo.save(mapper.map(patient, Patient.class));
 	}
 
@@ -54,6 +56,7 @@ public class PatientService implements IPatientService {
 		address.setZipCode(addressDTO.getZipCode());
 		return patientRepo.save(patient);
 	}
+
 	@Override
 	public Patient getPatientWithAllAppointments(Long patientId) {
 		Patient patientWithAllItsAppointments = patientRepo.getPatientWithAllAppointmentDetails(patientId)

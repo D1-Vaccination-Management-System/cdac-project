@@ -21,6 +21,6 @@ public class PatientDTO {
 	private AddressDTO address;
 	private String aadharCardNumber;
 	@JsonIgnore
-	private Role role = Role.ROLE_PATIENT;
+	private Role role;
 
 }
