@@ -15,6 +15,4 @@ public interface IHealthStaffRepo extends JpaRepository<HealthStaff, Long> {
 
 	Optional<List<HealthStaff>> findByCenterId(Long centerId);
 
-	public List<HealthStaff> getAllStaffByCenterId(Long centerId);
-
 }

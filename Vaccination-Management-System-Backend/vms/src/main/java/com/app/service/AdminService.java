@@ -71,4 +71,10 @@ public class AdminService implements IAdminService {
 
 	}
 
+	@Override
+	public Admin assignVisitToHealthStaff(String email, AdminDTO adminDTO) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

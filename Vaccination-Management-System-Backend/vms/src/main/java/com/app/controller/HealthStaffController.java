@@ -2,6 +2,7 @@ package com.app.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.HealthStaffDTO;
 import com.app.dto.LoginDTO;
+import com.app.service.IAppointmentService;
 import com.app.service.IHealthStaffService;
 
 @RestController
@@ -20,27 +22,34 @@ import com.app.service.IHealthStaffService;
 @CrossOrigin(origins = "http://localhost:5173")
 public class HealthStaffController {
 
+
 	@Autowired
 	private IHealthStaffService healthStaffService;
+	
+	@Autowired
+	private IAppointmentService appointmentService;
+	
 
 	@PostMapping("/add-health-staff")
-	public ResponseEntity<?> addHealthStaff(@RequestBody HealthStaffDTO healthStaffDTO) {
-		return ResponseEntity.ok(healthStaffService.addHealthStaff(healthStaffDTO));
+	public ResponseEntity<?> addHealthStaff(@RequestBody HealthStaffDTO healthStaffDTO){
+		return ResponseEntity.status(HttpStatus.CREATED).body(healthStaffService.addHealthStaff(healthStaffDTO));
 	}
+	
 
 	@PostMapping("/login")
-	public ResponseEntity<?> loginHealthStaff(@RequestBody LoginDTO healthStaffLoginDTO) {
+	public ResponseEntity<?> loginHealthStaff(@RequestBody LoginDTO healthStaffLoginDTO){
 		return ResponseEntity.ok(healthStaffService.loginHealthStaff(healthStaffLoginDTO));
 	}
-
+	
+	
 	@GetMapping("/get-all-appointments-by-staff-id/{staffId}")
 	public ResponseEntity<?> getAllAppointments(@PathVariable Long staffId) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(healthStaffService.getAllAppointmentsByStaffId(staffId));
 	}
 
 	@GetMapping("get-all-staff-by-center-id/{centerId}")
-	public ResponseEntity<?> getAllStaffByCenterId(@PathVariable Long centerId) {
+	public ResponseEntity<?> getAllStaffByCenterId(@PathVariable Long centerId){
 		return ResponseEntity.ok(healthStaffService.getAllStaffByCenterId(centerId));
 	}
-
+	
 }

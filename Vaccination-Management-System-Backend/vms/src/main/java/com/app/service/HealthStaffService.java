@@ -17,10 +17,7 @@ import com.app.exception.ResourceNotFoundException;
 import com.app.repo.IAppointmentRepo;
 import com.app.repo.IHealthStaffRepo;
 
-import jakarta.transaction.Transactional;
-
 @Service
-@Transactional
 public class HealthStaffService implements IHealthStaffService {
 
 	@Autowired
@@ -52,8 +49,9 @@ public class HealthStaffService implements IHealthStaffService {
 
 	@Override
 	public List<Appointments> getAllAppointmentsByStaffId(Long staffId) {
+		HealthStaff staff;
 		if (healthStaffRepo.existsById(staffId)) {
-			HealthStaff staff = healthStaffRepo.findById(staffId)
+			staff = healthStaffRepo.findById(staffId)
 					.orElseThrow(() -> new ResourceNotFoundException("Staff Not found!"));
 		}
 		return appointmentRepo.findAByStaff_userId(staffId);
@@ -66,6 +64,7 @@ public class HealthStaffService implements IHealthStaffService {
 	}
 
 //
+//	@Override
 //	public HealthStaff getHealthStaffWithAllItsAppointments(String email) {
 //		HealthStaff staffWithAllItsAppointments = healthStaffRepo.getStaffWithAllAppointmentDetails(email)
 //				.orElseThrow(() -> new ResourceNotFoundException("No Staff Found!"));
@@ -73,4 +72,5 @@ public class HealthStaffService implements IHealthStaffService {
 //		return staffWithAllItsAppointments;
 //
 //	}
+
 }

@@ -15,5 +15,6 @@ import lombok.Setter;
 public class Admin extends User {
 
 	@OneToOne(mappedBy = "admin")
+
 	private VaccinationCenter vaccinationCenter; // Corrected the field name
 }

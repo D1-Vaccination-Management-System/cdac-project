@@ -17,4 +17,5 @@ public interface IHealthStaffService {
 	public List<Appointments> getAllAppointmentsByStaffId(Long staffId);
 
 	public List<HealthStaff> getAllStaffByCenterId(Long centerId);
+
 }

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { updateAdminProfile } from "../service/admin"; // Import the admin service
 import { getVaccinationCenterDetails } from "../service/admin"; // Import the vaccination center service
+import { toast } from "react-toastify";
+import { getHealthStaff, registerStaff } from "../service/healthstaff";
+import { addVaccine } from "../service/vaccine";
 
 const AdminDashboard = () => {
   const [vaccinationDetails, setVaccinationDetails] = useState(null);
@@ -10,6 +11,17 @@ const AdminDashboard = () => {
   const [error, setError] = useState(null);
   const [view, setView] = useState("home"); // Control what to display in the main area
   const [adminData, setAdminData] = useState(null); // Admin data for profile view and update
+  const [StaffFirstName, setFirstName] = useState("");
+  const [StaffLastName, setLastName] = useState("");
+  const [StaffEmail, setEmail] = useState("");
+  const [StaffPassword, setPassword] = useState("");
+  const [StaffPhone, setPhoneNumber] = useState("");
+  const [StaffAadhaarCard, setAadharCardNumber] = useState("");
+  const [StaffDetails, setStaffDetails] = useState([]);
+  const [vaccineName, setVaccineName] = useState("");
+  const [vaccineDescription, setVaccineDescription] = useState("");
+  const [ageGroup, setAgeGroup] = useState("");
+  const [capacity, setCapacity] = useState(0);
   const navigate = useNavigate();
 
   const appointments = [
@@ -41,7 +53,9 @@ const AdminDashboard = () => {
     };
 
     fetchVaccinationDetails();
-
+    if (view === "healthStaff") {
+      handleStaffDetails();
+    }
     const storedAdminData = {
       vaccinationCenterId: sessionStorage.getItem("vaccinationCenterId"),
       adminPhone: sessionStorage.getItem("adminPhone"),
@@ -54,8 +68,23 @@ const AdminDashboard = () => {
     if (storedAdminData.adminEmail) {
       setAdminData(storedAdminData);
     }
-  }, []);
+  }, [view]);
 
+  const handleAddVaccine = async () => {
+    const centerId = sessionStorage.getItem("vaccinationCenterId");
+
+    const vaccineData = {
+      vaccineName,
+      description: vaccineDescription,
+      ageGroup,
+      capacity: Number(capacity),
+    };
+    const response = await addVaccine(vaccineData, centerId);
+    if (response.status === 201) {
+      toast.success("Vaccine added successfully!");
+      setView("vaccines"); // Redirect to the vaccine list view after successful addition
+    }
+  };
   const handleApprove = (id) => {
     console.log(`Approved appointment with ID: ${id}`);
     // Add logic to handle approval
@@ -66,18 +95,29 @@ const AdminDashboard = () => {
     // Add logic to handle revocation
   };
 
-  const handleUpdateProfile = async (updatedData) => {
-    try {
-      const result = await updateAdminProfile(updatedData);
-      setAdminData(result);
-      sessionStorage.setItem("adminData", JSON.stringify(result));
-      setView("viewProfile");
-    } catch (error) {
-      console.error("Failed to update profile:", error);
-      setError("Failed to update profile.");
-    }
+  const handleStaffDetails = async () => {
+    const centerId = sessionStorage.getItem("vaccinationCenterId");
+    const response = await getHealthStaff(centerId);
+    console.log(response.data);
+    setStaffDetails(response.data);
   };
 
+  const handleStaffRegistration = async () => {
+    const staffData = {
+      firstName: StaffFirstName,
+      lastName: StaffLastName,
+      email: StaffEmail,
+      password: StaffPassword,
+      phoneNumber: StaffPhone,
+      aadharCardNumber: StaffAadhaarCard,
+      centerId: sessionStorage.getItem("vaccinationCenterId"),
+    };
+    const response = await registerStaff(staffData);
+    if (response.status === 201) {
+      toast.success("Registrated Successfully");
+      setView("home");
+    } else toast.error("Registration Failed");
+  };
   const handleLogout = () => {
     sessionStorage.clear();
     navigate("/");
@@ -111,10 +151,10 @@ const AdminDashboard = () => {
             </li>
             <li>
               <a
-                onClick={() => setView("updateProfile")}
+                onClick={() => setView("healthStaff")}
                 className="block p-2 hover:bg-gray-700 rounded"
               >
-                Update Profile
+                Health Staff Details
               </a>
             </li>
             <li>
@@ -123,6 +163,22 @@ const AdminDashboard = () => {
                 className="block p-2 hover:bg-gray-700 rounded"
               >
                 Available Vaccines
+              </a>
+            </li>
+            <li>
+              <a
+                onClick={() => setView("addVaccine")}
+                className="block p-2 hover:bg-gray-700 rounded"
+              >
+                Add Vaccine
+              </a>
+            </li>
+            <li>
+              <a
+                onClick={() => setView("healthStaffRegister")}
+                className="block p-2 hover:bg-gray-700 rounded"
+              >
+                Register Health Staff
               </a>
             </li>
             <li>
@@ -213,80 +269,189 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {view === "updateProfile" && (
-          <div className="bg-white p-4 rounded shadow-md">
-            <h3 className="text-xl font-semibold mb-4">Update Profile</h3>
-            {adminData ? (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const updatedData = {
-                    adminFirstName: e.target.adminFirstName.value,
-                    adminLastName: e.target.adminLastName.value,
-                    adminEmail: e.target.adminEmail.value,
-                    adminPhone: e.target.adminPhone.value,
-                    adminPassword: e.target.adminPassword.value,
-                  };
-                  handleUpdateProfile(updatedData);
-                }}
-              >
-                <div className="mb-4">
-                  <label className="block text-gray-600 mb-2">First Name</label>
-                  <input
-                    type="text"
-                    name="adminFirstName"
-                    defaultValue={adminData.adminFirstName}
-                    className="input input-bordered w-full"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-600 mb-2">Last Name</label>
-                  <input
-                    type="text"
-                    name="adminLastName"
-                    defaultValue={adminData.adminLastName}
-                    className="input input-bordered w-full"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-600 mb-2">Email</label>
-                  <input
-                    type="email"
-                    name="adminEmail"
-                    defaultValue={adminData.adminEmail}
-                    className="input input-bordered w-full"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-600 mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="text"
-                    name="adminPhone"
-                    defaultValue={adminData.adminPhone}
-                    className="input input-bordered w-full"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-600 mb-2">Password</label>
-                  <input
-                    type="password"
-                    name="adminPassword"
-                    defaultValue={adminData.adminPassword}
-                    className="input input-bordered w-full"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                >
-                  Update Profile
-                </button>
-              </form>
+        {view === "healthStaffRegister" && (
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-4 text-gray-700">
+              Register HealthStaff
+            </h3>
+            <div className="mb-4">
+              <label className="block text-gray-600 mb-2">First Name</label>
+              <input
+                type="text"
+                name="StaffFirstName"
+                className="input input-bordered w-full"
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-600 mb-2">Last Name</label>
+              <input
+                type="text"
+                name="StaffLastName"
+                className="input input-bordered w-full"
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-600 mb-2">Email</label>
+              <input
+                type="email"
+                name="StaffEmail"
+                className="input input-bordered w-full"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-600 mb-2">Phone Number</label>
+              <input
+                type="text"
+                name="StaffPhone"
+                className="input input-bordered w-full"
+                onChange={(e) => setPhoneNumber(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-600 mb-2">Password</label>
+              <input
+                type="password"
+                name="StaffPassword"
+                className="input input-bordered w-full"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-600 mb-2">
+                Aadhaar Card Number
+              </label>
+              <input
+                type="text"
+                name="StaffAadhaarCard"
+                className="input input-bordered w-full"
+                onChange={(e) => setAadharCardNumber(e.target.value)}
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+              onClick={handleStaffRegistration}
+            >
+              Register
+            </button>
+          </div>
+        )}
+
+        {/* Main Content Area */}
+        {view === "healthStaff" && (
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-4 text-gray-700">
+              Details of All Health Staff
+            </h3>
+            {StaffDetails.length > 0 ? (
+              <table className="min-w-full table-auto border-collapse border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="border border-gray-300 px-4 py-2">
+                      First Name
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Last Name
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2">Email</th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Password
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Phone Number
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Aadhaar Card Number
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      No. of Appointments
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {StaffDetails.map((staff, index) => (
+                    <tr key={index} className="border-t">
+                      <td className="border border-gray-300 px-4 py-2">
+                        {staff.firstName}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {staff.lastName}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {staff.email}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {staff.password}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {staff.phoneNumber || "N/A"}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {staff.aadharCardNumber}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {staff.noOfAppointments}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             ) : (
-              <p>No admin data available to update.</p>
+              <p>No health staff found.</p>
             )}
+          </div>
+        )}
+
+        {view === "addVaccine" && (
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-4 text-gray-700">
+              Add Vaccine
+            </h3>
+            <div className="mb-4">
+              <label className="block text-gray-600 mb-2">Vaccine Name</label>
+              <input
+                type="text"
+                name="vaccineName"
+                className="input input-bordered w-full"
+                onChange={(e) => setVaccineName(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-600 mb-2">Description</label>
+              <textarea
+                name="description"
+                className="input input-bordered w-full"
+                onChange={(e) => setVaccineDescription(e.target.value)}
+              ></textarea>
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-600 mb-2">Age Group</label>
+              <input
+                type="text"
+                name="ageGroup"
+                className="input input-bordered w-full"
+                onChange={(e) => setAgeGroup(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-600 mb-2">Capacity</label>
+              <input
+                type="number"
+                name="capacity"
+                className="input input-bordered w-full"
+                onChange={(e) => setCapacity(e.target.value)}
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+              onClick={handleAddVaccine}
+            >
+              Add Vaccine
+            </button>
           </div>
         )}
 

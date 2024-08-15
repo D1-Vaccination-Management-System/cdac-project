@@ -58,5 +58,16 @@ public class AdminController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
 		}
 	}
+	
+	
+	@PutMapping("/assign-visit-to-health-staff")
+	public ResponseEntity<?> assignVisitToHealthStaff(@RequestParam String email, @RequestBody AdminDTO adminDTO) {
+		try {
+			Admin updatedAdmin = adminService.assignVisitToHealthStaff(email, adminDTO);
+			return ResponseEntity.status(HttpStatus.OK).body(updatedAdmin);
+		} catch (ApiException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
+		}
+	}
 
 }
