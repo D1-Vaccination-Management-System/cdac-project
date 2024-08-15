@@ -1,7 +1,12 @@
 package com.app.service;
 
+import java.util.List;
+
 import com.app.dto.AddressDTO;
+import com.app.dto.ApiResponse;
+import com.app.dto.AppointmentDTO;
 import com.app.dto.PatientDTO;
+import com.app.dto.UpdatePatientDTO;
 import com.app.entities.Patient;
 
 public interface IPatientService {
@@ -13,6 +18,10 @@ public interface IPatientService {
 
 	Patient updateAddress(Long patientId, Long addressId, AddressDTO addressDTO);
 
-	Patient getPatientWithAllAppointments(Long patientId);
+	List<AppointmentDTO> getAppointmentHistory(Long patientId);
+	
+	UpdatePatientDTO updatePatientDetails(Long patientId, UpdatePatientDTO patient);
+
+	ApiResponse deletePatientDetails(Long patientId);
 
 }

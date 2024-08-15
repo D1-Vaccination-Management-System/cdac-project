@@ -1,11 +1,16 @@
 package com.app.service;
 
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.dto.AddressDTO;
+import com.app.dto.ApiResponse;
+import com.app.dto.AppointmentDTO;
 import com.app.dto.PatientDTO;
+import com.app.dto.UpdatePatientDTO;
 import com.app.entities.Address;
 import com.app.entities.Patient;
 import com.app.enums.Role;
@@ -58,10 +63,31 @@ public class PatientService implements IPatientService {
 	}
 
 	@Override
-	public Patient getPatientWithAllAppointments(Long patientId) {
-		Patient patientWithAllItsAppointments = patientRepo.getPatientWithAllAppointmentDetails(patientId)
-				.orElseThrow(() -> new ResourceNotFoundException("No Patient Found!"));
+	public List<AppointmentDTO> getAppointmentHistory(Long patientId) {
+		List<AppointmentDTO> patientWithAllItsAppointments = patientRepo.getPatientWithAllAppointmentDetails(patientId);
 		return patientWithAllItsAppointments;
+	}
+
+	@Override
+	public UpdatePatientDTO updatePatientDetails(Long patientId, UpdatePatientDTO patient) {
+		Patient patientEntity = patientRepo.findById(patientId)
+				.orElseThrow(() -> new ResourceNotFoundException("Patient details not found.."));
+		patientEntity.setFirstName(patient.getFirstName());
+		patientEntity.setLastName(patient.getLastName());
+		patientEntity.setEmail(patient.getEmail());
+		patientEntity.setAadharCardNumber(patient.getAadharCardNumber());
+		patientEntity.setPhoneNumber(patient.getPhoneNumber());
+		return mapper.map(patientEntity, UpdatePatientDTO.class);
+	}
+
+	@Override
+	public ApiResponse deletePatientDetails(Long patientId) {
+		if (patientRepo.existsById(patientId)) {
+			patientRepo.deleteById(patientId);
+			return new ApiResponse("Profile deleted success fully...");
+		} else
+			return new ApiResponse("Patient details not found...");
+
 	}
 
 }

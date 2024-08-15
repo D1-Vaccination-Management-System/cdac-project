@@ -14,6 +14,12 @@ function Sidebar({ onSelect }) {
           Update Profile
         </li>
         <li
+          onClick={() => onSelect("UpdateAddress")}
+          className="cursor-pointer my-2 py-2 px-4 rounded-md bg-gray-600 text-gray-200 transition-colors duration-300 hover:bg-gray-500"
+        >
+          Update Address
+        </li>
+        <li
           onClick={() => onSelect("certificate")}
           className="cursor-pointer my-2 py-2 px-4 rounded-md bg-gray-600 text-gray-200 transition-colors duration-300 hover:bg-gray-500"
         >

@@ -1,9 +1,12 @@
 package com.app.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,8 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.AddressDTO;
 import com.app.dto.ApiResponse;
+import com.app.dto.AppointmentDTO;
 import com.app.dto.LoginDTO;
 import com.app.dto.PatientDTO;
+import com.app.dto.UpdatePatientDTO;
 import com.app.entities.Patient;
 import com.app.exception.ApiException;
 import com.app.service.IPatientService;
@@ -65,9 +70,31 @@ public class PatientController {
 		}
 	}
 
-	@GetMapping("/get-patient-with-appointments/{patientId}")
-	public ResponseEntity<?> getPatientWithAllAppointments(@PathVariable Long patientId) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(patientService.getPatientWithAllAppointments(patientId));
+	@GetMapping("/appointment-history/{patientId}")
+	public ResponseEntity<?> getAppointmentHistory(@PathVariable Long patientId) {
+		List<AppointmentDTO> appointments = patientService.getAppointmentHistory(patientId);
+		return ResponseEntity.ok(appointments);
+	}
+
+	@PutMapping("/update-user")
+	public ResponseEntity<?> updatePatientDetails(@RequestParam Long id, @RequestBody UpdatePatientDTO patient) {
+		try {
+			UpdatePatientDTO updatedPatient = patientService.updatePatientDetails(id, patient);
+			return ResponseEntity.status(HttpStatus.OK).body(updatedPatient);
+		} catch (ApiException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
+		}
+	}
+
+	@DeleteMapping("/delete-user")
+	public ResponseEntity<?> deletePatientDetails(@RequestParam Long id) {
+		try {
+			patientService.deletePatientDetails(id);
+			return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Profile Deleted Successfully.."));
+		} catch (ApiException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
+		}
+
 	}
 
 }
