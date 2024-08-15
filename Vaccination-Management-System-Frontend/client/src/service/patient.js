@@ -1,9 +1,10 @@
 import axios from "axios";
+import API_BASE_URL from "./url";
 
 export async function getCenterByPincode(pincode) {
   try {
     const response = await axios.get(
-      "http://localhost:9999/vaccination-center/centers-by-pincode",
+      `${API_BASE_URL}/vaccination-center/centers-by-pincode`,
       { params: { pincode } }
     );
     return response;
@@ -15,8 +16,14 @@ export async function getCenterByPincode(pincode) {
 
 export async function register2(formdata) {
   const response = await axios.post(
-    "http://localhost:9999/patient/register-user",
+    `${API_BASE_URL}/patient/register-user`,
     formdata
   );
+  return response;
+}
+
+export async function login(email, password) {
+  const body = { email, password };
+  const response = await axios.post(`${API_BASE_URL}/patient/login-user`, body);
   return response;
 }

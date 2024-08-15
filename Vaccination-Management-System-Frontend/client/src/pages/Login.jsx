@@ -1,20 +1,35 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { login } from "../service/patient";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e) => {
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (email.length === 0) {
       toast.error("Email Required !!!");
     } else if (password.length === 0) {
       toast.error("Password Required !!!");
     } else {
-      toast.success("Login successful!");
+      try {
+        const response = await login(email, password); // Await the login function
+        console.log(response.data.firstName);
+        if (response.data) {
+          sessionStorage.setItem("patientFirstName", response.data.firstName);
+          toast.success("Login successful!");
+          navigate("/patient-dashboard");
+        } else {
+          toast.error("No Patient with the following credentials exists!");
+        }
+      } catch (error) {
+        toast.error("Error in Login!");
+      }
     }
   };
 

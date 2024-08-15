@@ -10,6 +10,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLogin from "./pages/AdminLogin";
+import HealthStaffLogin from "./pages/HealthStaffLogin";
+import HealthStaffDashboard from "./pages/HealthStaffDashboard";
+import Contact from "./pages/Contact";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +31,9 @@ const router = createBrowserRouter([
       { path: "/login", element: <Login /> },
       { path: "/register", element: <Register /> },
       { path: "/admin-dashboard", element: <AdminDashboard /> },
+      { path: "/health-staff/login", element: <HealthStaffLogin /> },
+      { path: "/health-staff/dashboard", element: <HealthStaffDashboard /> },
+      { path: "/contact", element: <Contact /> },
     ],
   },
 ]);

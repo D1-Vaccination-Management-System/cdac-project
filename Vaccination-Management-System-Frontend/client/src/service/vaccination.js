@@ -1,9 +1,10 @@
 import axios from "axios";
+import API_BASE_URL from "./url";
 
 export async function searchCenterByStateAndCity(city, state) {
   try {
     const response = await axios.get(
-      "http://localhost:9999/vaccination-center/centers-by-address",
+      `${API_BASE_URL}/vaccination-center/centers-by-address`,
       {
         params: { city, state },
       }

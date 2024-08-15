@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import { searchCenterByStateAndCity } from "../service/vaccination";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -116,7 +117,7 @@ const FindVaccinationCenter = () => {
               onClick={handleLoginRedirect}
               className="bg-green-600 text-white px-6 py-3 rounded-full"
             >
-              Login to Book Appointment
+              <Link to="/login">Login to Book Appointment</Link>
             </button>
           </div>
         </div>

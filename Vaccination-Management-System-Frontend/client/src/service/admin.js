@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const API_BASE_URL = "http://localhost:9999"; // Adjust base URL as necessary
+import API_BASE_URL from "./url";
 
 export async function adminLogin(email, password) {
   const body = {

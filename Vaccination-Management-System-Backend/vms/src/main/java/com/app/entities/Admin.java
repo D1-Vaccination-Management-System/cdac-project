@@ -14,6 +14,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Admin extends User {
 
-    @OneToOne(mappedBy = "admin")
-    private VaccinationCenter vaccinationCenter; // Corrected the field name
+	@OneToOne(mappedBy = "admin")
+	private VaccinationCenter vaccinationCenter; // Corrected the field name
 }

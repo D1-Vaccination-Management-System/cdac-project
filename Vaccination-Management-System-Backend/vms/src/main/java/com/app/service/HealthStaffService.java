@@ -8,12 +8,10 @@ import com.app.dto.ApiResponse;
 import com.app.dto.HealthStaffDTO;
 import com.app.dto.LoginDTO;
 import com.app.entities.HealthStaff;
-import com.app.entities.Patient;
 import com.app.enums.Role;
 import com.app.exception.ApiException;
+import com.app.exception.ResourceNotFoundException;
 import com.app.repo.IHealthStaffRepo;
-
-import jakarta.transaction.Transactional;
 
 
 @Service
@@ -46,5 +44,19 @@ public class HealthStaffService implements IHealthStaffService{
 		return healthStaffRepo.findByEmailAndPassword(healthStaffLoginDTO.getEmail(), healthStaffLoginDTO.getPassword())
 				.orElseThrow(() -> new ApiException("Invalid Email or Password"));
 	}
+
+
+	@Override
+	public HealthStaff getHealthStaffWithAllItsAppointments(String email) {
+		HealthStaff staffWithAllItsAppointments = healthStaffRepo.getStaffWithAllAppointmentDetails(email)
+				.orElseThrow(() -> new ResourceNotFoundException("No Staff Found!"));
+		staffWithAllItsAppointments.getListOfAppointments().size();
+		return staffWithAllItsAppointments;
+
+	}
+
+
+
+	
 
 }

@@ -49,7 +49,8 @@ const Register = () => {
       aadharCardNumber,
     };
     const register = await register2(formData);
-    if (register.data.status === "Success") {
+    console.log(register);
+    if (register.status === 201) {
       toast.success("Registration successful!");
       navigate("/login");
     } else {
