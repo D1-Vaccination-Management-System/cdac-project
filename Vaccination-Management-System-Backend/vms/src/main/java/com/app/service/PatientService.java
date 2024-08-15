@@ -1,6 +1,7 @@
 package com.app.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,13 +10,17 @@ import org.springframework.stereotype.Service;
 import com.app.dto.AddressDTO;
 import com.app.dto.ApiResponse;
 import com.app.dto.AppointmentDTO;
+import com.app.dto.AppointmentHistoryDTO;
 import com.app.dto.PatientDTO;
 import com.app.dto.UpdatePatientDTO;
 import com.app.entities.Address;
+import com.app.entities.Appointment_Status;
+import com.app.entities.Appointments;
 import com.app.entities.Patient;
 import com.app.enums.Role;
 import com.app.exception.ApiException;
 import com.app.exception.ResourceNotFoundException;
+import com.app.repo.IAppointmentRepo;
 import com.app.repo.IPatientRepo;
 
 import jakarta.transaction.Transactional;
@@ -26,6 +31,9 @@ public class PatientService implements IPatientService {
 
 	@Autowired
 	private IPatientRepo patientRepo;
+
+	@Autowired
+	private IAppointmentRepo appointmentRepo;
 
 	@Autowired
 	private ModelMapper mapper;
@@ -87,6 +95,51 @@ public class PatientService implements IPatientService {
 			return new ApiResponse("Profile deleted success fully...");
 		} else
 			return new ApiResponse("Patient details not found...");
+
+	}
+
+	@Override
+	public List<AppointmentHistoryDTO> getAppointmentHisporyByPaientId(Long patientId) {
+		Patient patient = patientRepo.findById(patientId)
+				.orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+		List<Appointments> app = appointmentRepo.findByPatient(patient);
+
+		List<Appointments> filteredAppointments = app.stream()
+				.filter(appointment -> appointment.getAppointmentStatus() == Appointment_Status.COMPLETED
+						|| appointment.getAppointmentStatus() == Appointment_Status.CANCELED)
+				.collect(Collectors.toList());
+
+		if (!filteredAppointments.isEmpty()) {
+
+			List<AppointmentHistoryDTO> history = filteredAppointments.stream()
+					.map(a -> mapper.map(a, AppointmentHistoryDTO.class)).collect(Collectors.toList());
+			return history;
+		} else
+			throw new ResourceNotFoundException("Failed to fetch appointments");
+
+	}
+
+	@Override
+	public List<AppointmentHistoryDTO> getAppointmentUpcomingByPatientId(Long patientId) {
+		Patient patient = patientRepo.findById(patientId)
+				.orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+		List<Appointments> app = appointmentRepo.findByPatient(patient);
+
+		List<Appointments> filteredAppointments = app.stream()
+				.filter(appointment -> appointment.getAppointmentStatus() == Appointment_Status.PENDING
+						|| appointment.getAppointmentStatus() == Appointment_Status.SCHEDULED
+						|| appointment.getAppointmentStatus() == Appointment_Status.RESCHEDULED)
+				.collect(Collectors.toList());
+
+		if (!filteredAppointments.isEmpty()) {
+
+			List<AppointmentHistoryDTO> upcoming = filteredAppointments.stream()
+					.map(a -> mapper.map(a, AppointmentHistoryDTO.class)).collect(Collectors.toList());
+			return upcoming;
+		} else
+			throw new ResourceNotFoundException("Failed to fetch appointments");
 
 	}
 

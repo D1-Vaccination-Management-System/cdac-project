@@ -9,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.dto.SlotDTO;
 import com.app.entities.AvailableSlots;
 import com.app.entities.Slots;
 import com.app.entities.VaccinationCenter;
@@ -56,6 +59,19 @@ public class SlotsController {
 	public List<String> getAllSlots() {
 		// Get all enum values and convert them to a list of strings
 		return Arrays.stream(AvailableSlots.values()).map(Enum::name).collect(Collectors.toList());
+	}
+
+	@PostMapping("/add")
+	public ResponseEntity<String> addSlot(@RequestBody SlotDTO slotDTO) {
+		String response = slotsService.addSlot(slotDTO);
+		return ResponseEntity.ok(response);
+	}
+
+	@PostMapping("/increment-capacity")
+	public ResponseEntity<String> incrementCapacity(@RequestParam Long vaccinationCenterId,
+			@RequestParam String slotName, @RequestParam LocalDate date) {
+		String response = slotsService.incrementCapacity(vaccinationCenterId, slotName, date);
+		return ResponseEntity.ok(response);
 	}
 
 }

@@ -25,15 +25,47 @@ export const getAvailableSlots = async (centerId, date) => {
   }
 };
 
+// Update slot capacity
+export const updateSlotCapacity = async (centerId, slotId) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/slots/update-capacity`, {
+      centerId,
+      slotId,
+    });
+    return response;
+  } catch (error) {
+    console.error("Error updating slot capacity:", error);
+    throw error;
+  }
+};
+
+// Add a new slot
+// Add a new slot
+export const addNewSlot = async (centerId, newSlot) => {
+  console.log(centerId, newSlot); // Corrected this line
+  try {
+    const response = await axios.post(`${API_BASE_URL}/slots/add`, {
+      centerId,
+      slot: newSlot,
+    });
+    return response;
+  } catch (error) {
+    console.error("Error adding new slot:", error);
+    throw error;
+  }
+};
+
 // Schedule an appointment
 export const scheduleAppointment = async (appointment) => {
   try {
     const response = await axios.post(
-      `${API_BASE_URL}/appointments`,
-      appointment
+      `${API_BASE_URL}/appointment/schedule`,
+      appointment // directly send the appointment object
     );
+    console.log(response);
     return response;
   } catch (error) {
+    console.error("Error scheduling appointment:", error);
     throw new Error("Error scheduling appointment.");
   }
 };

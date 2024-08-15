@@ -5,6 +5,8 @@ import {
   getAvailableSlots,
   scheduleAppointment,
   getAllSlots,
+  updateSlotCapacity,
+  addNewSlot,
 } from "../service/patient";
 
 function ScheduleAppointment() {
@@ -14,15 +16,22 @@ function ScheduleAppointment() {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [allSlots, setAllSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const [appointmentType, setAppointmentType] = useState(""); // New state for appointment type
+  const [appointmentType, setAppointmentType] = useState("");
   const [appointmentStatus, setAppointmentStatus] = useState("");
   const [error, setError] = useState("");
   const [selectedDate, setSelectedDate] = useState(
     format(new Date(), "yyyy-MM-dd")
   );
   const [dateOptions, setDateOptions] = useState([]);
+  const [patientId, setPatientId] = useState(null);
 
-  // Fetch all available slots (enum) on component mount
+  useEffect(() => {
+    const storedPatientId = sessionStorage.getItem("patientId");
+    if (storedPatientId) {
+      setPatientId(parseInt(storedPatientId, 10));
+    }
+  }, []);
+
   useEffect(() => {
     async function fetchAllSlots() {
       try {
@@ -36,7 +45,6 @@ function ScheduleAppointment() {
     fetchAllSlots();
   }, []);
 
-  // Generate the next 5 days
   useEffect(() => {
     const today = new Date();
     const futureDates = Array.from({ length: 5 }, (_, i) =>
@@ -45,7 +53,6 @@ function ScheduleAppointment() {
     setDateOptions(futureDates);
   }, []);
 
-  // Fetch centers based on pincode
   const handlePincodeChange = (event) => {
     setPincode(event.target.value);
   };
@@ -65,7 +72,6 @@ function ScheduleAppointment() {
     }
   };
 
-  // Fetch available slots for the selected center and date
   const handleCenterChange = async (event) => {
     const selectedCenterId = event.target.value;
     const selectedCenter = centers.find(
@@ -108,30 +114,30 @@ function ScheduleAppointment() {
     }
   };
 
-  // Handle slot selection
   const handleSlotClick = (slot) => {
     setSelectedSlot(slot);
     setAppointmentStatus("");
   };
 
-  // Schedule the appointment
   const handleScheduleAppointment = async () => {
-    if (!selectedSlot || !selectedCenter.id || !appointmentType) {
-      setError("Please select a slot, center, and appointment type.");
+    if (!selectedSlot || !selectedCenter.id || !appointmentType || !patientId) {
+      setError("Please select a slot, center, appointment type, and patient.");
       return;
     }
 
     const appointment = {
-      centerId: selectedCenter.id,
-      centerName: selectedCenter.name,
-      date: selectedSlot.date,
-      slot: selectedSlot.slot,
-      appointmentType: appointmentType, // Include appointment type
+      patientId,
+      vaccination_center_id: parseInt(selectedCenter.id, 10),
+      bookedAppointmentDate: new Date().toISOString(),
+      appointmentType,
+      appointmentStatus: "SCHEDULED",
     };
 
     try {
       await scheduleAppointment(appointment);
       setAppointmentStatus("success");
+      updateCapacity();
+      addSlot();
       setError("");
     } catch (err) {
       setAppointmentStatus("failure");
@@ -139,27 +145,59 @@ function ScheduleAppointment() {
     }
   };
 
-  // Handle appointment type change
   const handleAppointmentTypeChange = (event) => {
     setAppointmentType(event.target.value);
   };
 
-  // Handle date change
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
   };
 
-  // Trigger fetch centers on pincode change
+  const addSlot = async (slot) => {
+    try {
+      await addNewSlot(selectedCenter.id, slot);
+      // Option 1: Refetch all slots
+      const response = await getAllSlots();
+      setAllSlots(response.data);
+      // Option 2: Update availableSlots state directly
+      setAvailableSlots((prevSlots) => [...prevSlots, slot]);
+      console.log("Slot added successfully.");
+    } catch (err) {
+      console.error("Error adding new slot:", err);
+      setError("Failed to add new slot. Please try again.");
+    }
+  };
+
+  const updateCapacity = async (slotId) => {
+    try {
+      await updateSlotCapacity(selectedCenter.id, slotId);
+      // Option 1: Refetch all slots
+      const response = await getAllSlots();
+      setAllSlots(response.data);
+      // Option 2: Update availableSlots state directly
+      setAvailableSlots((prevSlots) =>
+        prevSlots.map((slot) =>
+          slot.slotId === slotId
+            ? { ...slot, capacity: slot.capacity - 1 }
+            : slot
+        )
+      );
+      console.log("Slot capacity updated successfully.");
+    } catch (err) {
+      console.error("Error updating slot capacity:", err);
+      setError("Failed to update slot capacity. Please try again.");
+    }
+  };
+
   useEffect(() => {
     filterCenters();
   }, [pincode]);
 
-  // Trigger fetch available slots on date or center change
   useEffect(() => {
     if (selectedCenter.id && selectedDate) {
       handleCenterChange({ target: { value: selectedCenter.id } });
     }
-  }, []);
+  }, [selectedCenter.id, selectedDate]);
 
   return (
     <div className="flex flex-col items-center p-4">
@@ -219,31 +257,26 @@ function ScheduleAppointment() {
         {availableSlots.length > 0 && (
           <div className="w-full mt-4">
             <h4 className="text-lg font-bold mb-2">Available Slots:</h4>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 justify-center">
               {availableSlots.map((slot) => (
                 <div
                   key={slot.slotId}
-                  className={`cursor-pointer p-2 rounded border ${
+                  className={`cursor-pointer p-2 rounded border  ${
                     selectedSlot?.slotId === slot.slotId
-                      ? "bg-blue-200 border-blue-500"
-                      : "hover:bg-gray-200 border-gray-300"
+                      ? "bg-blue-500 text-white"
+                      : "bg-white border-gray-300"
                   }`}
                   onClick={() => handleSlotClick(slot)}
                 >
-                  Slot: {slot.slot} (Capacity: {slot.capacity})
+                  {slot.slot}
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {selectedSlot && (
-          <div className="w-full mt-4">
-            <h4 className="text-lg font-bold mb-2">Selected Slot:</h4>
-            <p>
-              Slot: {selectedSlot.slot} (Capacity: {selectedSlot.capacity})
-            </p>
-
+        <div className="flex flex-col gap-4 mt-4">
+          <div>
             <label className="block mb-2 text-gray-700">
               Appointment Type:
             </label>
@@ -256,30 +289,40 @@ function ScheduleAppointment() {
               <option value="CENTER_VISIT">Center Visit</option>
               <option value="HOME_VISIT">Home Visit</option>
             </select>
-
-            <button
-              onClick={handleScheduleAppointment}
-              className="mt-4 bg-blue-500 text-white p-2 rounded w-full"
-            >
-              Schedule Appointment
-            </button>
           </div>
-        )}
 
-        {appointmentStatus === "success" && (
-          <div className="w-full mt-4 text-green-500">
-            Appointment successfully scheduled!
-          </div>
-        )}
-
-        {appointmentStatus === "failure" && (
-          <div className="w-full mt-4 text-red-500">
-            Failed to schedule appointment.
-          </div>
-        )}
-
-        {error && <div className="w-full mt-4 text-red-500">{error}</div>}
+          {selectedSlot && (
+            <div className="flex flex-col gap-4">
+              <p>
+                Selected Slot:{" "}
+                <strong>
+                  {selectedSlot.slot} - {selectedSlot.capacity}
+                </strong>
+              </p>
+              <button
+                onClick={handleScheduleAppointment}
+                className="bg-blue-500 text-white p-2 rounded"
+              >
+                Schedule Appointment
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {error && <p className="mt-4 text-red-500">Error: {error}</p>}
+
+      {appointmentStatus && (
+        <p
+          className={`mt-4 ${
+            appointmentStatus === "success" ? "text-green-500" : "text-red-500"
+          }`}
+        >
+          {appointmentStatus === "success"
+            ? "Appointment scheduled successfully!"
+            : "Failed to schedule appointment."}
+        </p>
+      )}
     </div>
   );
 }

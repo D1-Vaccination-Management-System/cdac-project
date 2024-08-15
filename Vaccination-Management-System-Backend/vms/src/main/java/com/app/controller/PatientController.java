@@ -96,5 +96,23 @@ public class PatientController {
 		}
 
 	}
+	
+	@GetMapping("/get-patient-appointment-history")
+	public ResponseEntity<?> getPatientAppointmentHistory(@RequestParam Long patientId) {
+		try {
+			return ResponseEntity.status(HttpStatus.OK).body(patientService.getAppointmentHisporyByPaientId(patientId));
+		} catch (ApiException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
+		}
+	}
+	
+	@GetMapping("/get-patient-appointment-upcoming")
+	public ResponseEntity<?> getPatientAppointmentUpcoming(@RequestParam Long patientId) {
+		try {
+			return ResponseEntity.status(HttpStatus.OK).body(patientService.getAppointmentUpcomingByPatientId(patientId));
+		} catch (ApiException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
+		}
+	}
 
 }

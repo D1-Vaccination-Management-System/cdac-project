@@ -1,52 +1,100 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-function UpcomingAppointments() {
+const UpcomingAppointments = () => {
   const [appointments, setAppointments] = useState([]);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const API_BASE_URL = "http://localhost:9999";
 
   useEffect(() => {
     const fetchAppointments = async () => {
+      const patientId = sessionStorage.getItem("patientId");
+
+      if (!patientId) {
+        setError("Patient ID not found in session storage");
+        setLoading(false);
+        return;
+      }
+
       try {
-        const response = await getUpcomingAppointments();
+        const response = await axios.get(`${API_BASE_URL}/patient/get-patient-appointment-upcoming`, {
+          params: { patientId }
+        });
         setAppointments(response.data);
-      } catch (err) {
-        setError("Failed to fetch upcoming appointments.");
+      } catch (error) {
+        setError("Failed to fetch data");
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchAppointments();
   }, []);
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "SCHEDULED":
+        return "text-gray-600";
+      case "RESCHEDULED":
+        return "text-orange-600";
+      case "PENDING":
+        return "text-yellow-600";
+      default:
+        return "text-black";
+    }
+  };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+
   return (
-    <div className="p-4">
-      <h3 className="text-xl font-bold mb-4">Upcoming Appointments</h3>
-      {error && <div className="text-red-500 font-bold mb-4">{error}</div>}
-      {appointments.length > 0 ? (
-        <ul className="space-y-4">
-          {appointments.map((appointment) => (
-            <li
-              key={appointment.id}
-              className="border border-gray-300 p-4 rounded-lg bg-white shadow-md"
-            >
-              <div>
-                <span className="font-bold">Date:</span> {appointment.date}
-              </div>
-              <div>
-                <span className="font-bold">Time:</span> {appointment.time}
-              </div>
-              <div className="mt-2">
-                <span className="font-bold">Vaccination Center:</span>
-                <div>{appointment.center.name}</div>
-                <div>{appointment.center.address}</div>
-                <div>{appointment.center.pincode}</div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div>No upcoming appointments.</div>
-      )}
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center">Upcoming Appointments</h1>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg">
+          <thead className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+            <tr>
+              <th className="py-3 px-6 text-left border-b-2">Serial No</th>
+              <th className="py-3 px-6 text-left border-b-2">Vaccination Center</th>
+              <th className="py-3 px-6 text-left border-b-2">Center Address Street</th>
+              <th className="py-3 px-6 text-left border-b-2">Center Address City</th>
+              <th className="py-3 px-6 text-left border-b-2">Date</th>
+              <th className="py-3 px-6 text-left border-b-2">Time</th>
+              <th className="py-3 px-6 text-left border-b-2">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {appointments.map((appointment, index) => (
+              <tr key={appointment.appointmentId} className="hover:bg-gray-100">
+                <td className="py-3 px-6 border-b">{index + 1}</td>
+                <td className="py-3 px-6 border-b">
+                  {appointment.vaccinationCenter.centerName}
+                </td>
+                <td className="py-3 px-6 border-b">
+                  {appointment.vaccinationCenter.address.street}
+                </td>
+                <td className="py-3 px-6 border-b">
+                  {appointment.vaccinationCenter.address.city}
+                </td>
+                <td className="py-3 px-6 border-b">
+                  {new Date(appointment.bookedAppointmentDate).toLocaleDateString()}
+                </td>
+                <td className="py-3 px-6 border-b">
+                  {new Date(appointment.bookedAppointmentDate).toLocaleTimeString()}
+                </td>
+                <td
+                  className={`py-3 px-6 border-b font-bold ${getStatusColor(appointment.appointmentStatus)}`}
+                >
+                  {appointment.appointmentStatus}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
-}
+};
 
 export default UpcomingAppointments;

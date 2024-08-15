@@ -46,9 +46,4 @@ public class AppointmentController {
 		return ResponseEntity.ok("Success");
 	}
 
-	@PostMapping("/addAppointment")
-	public ResponseEntity<?> addNewAppointmentByPatientId(@RequestBody AppointmentDTO appointmentDTO) {
-		return ResponseEntity.ok(appointmentService.addAppointment(appointmentDTO));
-	}
-
 }

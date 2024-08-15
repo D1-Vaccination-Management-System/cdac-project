@@ -26,18 +26,18 @@ import lombok.Setter;
 @CrossOrigin(origins = "http://localhost:5173")
 public class Slots extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long slotId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long slotId;
 
-    @Enumerated(EnumType.STRING)
-    private AvailableSlots slot;
+	@Enumerated(EnumType.STRING)
+	private AvailableSlots slot;
 
-    private LocalDate date;
+	private LocalDate date;
 
-    private int capacity;
+	private int capacity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vaccination_center_id")
-    private VaccinationCenter vaccinationCenter;
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "vaccination_center_id")
+	private VaccinationCenter vaccinationCenter;
 }

@@ -20,28 +20,27 @@ import com.app.service.IHealthStaffService;
 @CrossOrigin(origins = "http://localhost:5173")
 public class HealthStaffController {
 
-
 	@Autowired
 	private IHealthStaffService healthStaffService;
-	
 
 	@PostMapping("/add-health-staff")
-	public ResponseEntity<?> addHealthStaff(@RequestBody HealthStaffDTO healthStaffDTO){
+	public ResponseEntity<?> addHealthStaff(@RequestBody HealthStaffDTO healthStaffDTO) {
 		return ResponseEntity.ok(healthStaffService.addHealthStaff(healthStaffDTO));
 	}
-	
 
 	@PostMapping("/login")
-	public ResponseEntity<?> loginHealthStaff(@RequestBody LoginDTO healthStaffLoginDTO){
+	public ResponseEntity<?> loginHealthStaff(@RequestBody LoginDTO healthStaffLoginDTO) {
 		return ResponseEntity.ok(healthStaffService.loginHealthStaff(healthStaffLoginDTO));
 	}
-	
-	
-	@GetMapping("/get-health-staff-with-appointments/{email}")
-	public ResponseEntity<?> getPatientWithAllAppointments(@PathVariable String email) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(healthStaffService.getHealthStaffWithAllItsAppointments(email));
+
+	@GetMapping("/get-all-appointments-by-staff-id/{staffId}")
+	public ResponseEntity<?> getAllAppointments(@PathVariable Long staffId) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(healthStaffService.getAllAppointmentsByStaffId(staffId));
 	}
 
+	@GetMapping("get-all-staff-by-center-id/{centerId}")
+	public ResponseEntity<?> getAllStaffByCenterId(@PathVariable Long centerId) {
+		return ResponseEntity.ok(healthStaffService.getAllStaffByCenterId(centerId));
+	}
 
-	
 }
