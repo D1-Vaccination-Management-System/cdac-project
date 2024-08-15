@@ -38,6 +38,12 @@ public class VaccinationCenterService implements IVaccinationCenterService {
 	private ModelMapper mapper;
 
 	@Override
+    public VaccinationCenter getCenterById(Long id) {
+        return vaccinationCenter.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Center not found with ID: " + id));
+    }
+	
+	@Override
 	public List<VaccinationCenterSearchDTO> getCenterByZipCode(String pinCode) {
 		List<VaccinationCenter> centers = vaccinationCenter.findByAddress_ZipCode(pinCode);
 		return centers.stream().map(center -> mapper.map(center, VaccinationCenterSearchDTO.class))

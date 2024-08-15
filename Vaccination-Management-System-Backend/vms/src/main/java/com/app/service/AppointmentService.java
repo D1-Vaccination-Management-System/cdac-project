@@ -23,10 +23,8 @@ public class AppointmentService implements IAppointmentService {
 	
 	@Override
 	public ApiResponse addAppointment(AppointmentDTO appointmentDTO) {
-		
 			Appointments appointment = mapper.map(appointmentDTO, Appointments.class);
 			appointmentRepo.save(appointment);
 			return new ApiResponse("Appointment Added Successfully!");
-		
 	}
 }

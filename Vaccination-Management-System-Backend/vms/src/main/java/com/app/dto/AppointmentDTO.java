@@ -24,6 +24,4 @@ public class AppointmentDTO {
 
     private Appointment_Type appointmentType;
 
-	
-
 }

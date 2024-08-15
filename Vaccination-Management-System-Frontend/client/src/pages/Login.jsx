@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { patientLogin } from "../service/patient";
-const Login =  () => 
-{
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const handleLogin = async(e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (email.length === 0) {
       toast.error("Email Required !!!");
@@ -19,19 +18,21 @@ const Login =  () =>
         const response = await patientLogin(email, password);
         console.log(response.data);
         if (response.data && response.data.address) {
-          sessionStorage.setItem("patientId",response.data.userId)
+          sessionStorage.setItem("patientId", response.data.userId);
           sessionStorage.setItem("patientEmail", response.data.email);
           sessionStorage.setItem("patientPassword", response.data.password);
-          
           sessionStorage.setItem("patientFirstName", response.data.firstName);
           sessionStorage.setItem("patientLastName", response.data.lastName);
           sessionStorage.setItem("patientPhone", response.data.phoneNumber);
-          sessionStorage.setItem("aadharNumber",response.data.aadharCardNumber)
-          sessionStorage.setItem("street",response.data.address.street)
-          sessionStorage.setItem("city",response.data.address.city)
-          sessionStorage.setItem("state",response.data.address.state)  
-          sessionStorage.setItem("zipCode",response.data.address.zipCode)        
-          
+          sessionStorage.setItem(
+            "aadharNumber",
+            response.data.aadharCardNumber
+          );
+          sessionStorage.setItem("street", response.data.address.street);
+          sessionStorage.setItem("city", response.data.address.city);
+          sessionStorage.setItem("state", response.data.address.state);
+          sessionStorage.setItem("zipCode", response.data.address.zipCode);
+
           toast.success("Login successful!");
           navigate("/patient-dashboard");
         } else {
@@ -59,7 +60,8 @@ const Login =  () =>
           </h2>
           <form onSubmit={handleLogin}>
             <div className="mb-4">
-              <input id="email1"
+              <input
+                id="email1"
                 type="email"
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 placeholder="Email"
@@ -68,7 +70,8 @@ const Login =  () =>
               />
             </div>
             <div className="mb-6">
-              <input id="pass1"
+              <input
+                id="pass1"
                 type="password"
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
                 placeholder="Password"

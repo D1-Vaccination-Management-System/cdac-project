@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VaccinationCenterSearchDTO {
+	private String centerId;
 	private String centerName;
 	private String phoneNumber;
 	private AddressDTO address;

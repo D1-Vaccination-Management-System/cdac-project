@@ -13,6 +13,35 @@ export async function getCenterByPincode(pincode) {
     throw error;
   }
 }
+export const getAvailableSlots = async (centerId, date) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/slots/available`, {
+      params: { centerId, date },
+    });
+    console.log(response.data);
+    return response;
+  } catch (error) {
+    throw new Error("Error fetching available slots.");
+  }
+};
+
+// Schedule an appointment
+export const scheduleAppointment = async (appointment) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/appointments`,
+      appointment
+    );
+    return response;
+  } catch (error) {
+    throw new Error("Error scheduling appointment.");
+  }
+};
+
+export const getAllSlots = async () => {
+  const response = await axios.get(`${API_BASE_URL}/slots/all`);
+  return response;
+};
 
 export async function register2(formdata) {
   const response = await axios.post(
