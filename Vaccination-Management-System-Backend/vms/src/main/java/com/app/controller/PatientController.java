@@ -24,6 +24,7 @@ import com.app.dto.PatientDTO;
 import com.app.dto.UpdatePatientDTO;
 import com.app.entities.Patient;
 import com.app.exception.ApiException;
+import com.app.exception.ResourceNotFoundException;
 import com.app.service.IPatientService;
 
 @RestController
@@ -101,7 +102,7 @@ public class PatientController {
 	public ResponseEntity<?> getPatientAppointmentHistory(@RequestParam Long patientId) {
 		try {
 			return ResponseEntity.status(HttpStatus.OK).body(patientService.getAppointmentHisporyByPaientId(patientId));
-		} catch (ApiException e) {
+		} catch (ResourceNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage()));
 		}
 	}

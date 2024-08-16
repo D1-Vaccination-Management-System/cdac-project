@@ -18,7 +18,6 @@ export const getAvailableSlots = async (centerId, date) => {
     const response = await axios.get(`${API_BASE_URL}/slots/available`, {
       params: { centerId, date },
     });
-    console.log(response.data);
     return response;
   } catch (error) {
     throw new Error("Error fetching available slots.");
@@ -26,11 +25,16 @@ export const getAvailableSlots = async (centerId, date) => {
 };
 
 // Update slot capacity
-export const updateSlotCapacity = async (centerId, slotId) => {
+export const updateSlotCapacity = async (
+  vaccinationCenterId,
+  slotName,
+  date
+) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/slots/update-capacity`, {
-      centerId,
-      slotId,
+      vaccinationCenterId,
+      slotName,
+      date,
     });
     return response;
   } catch (error) {
@@ -41,13 +45,17 @@ export const updateSlotCapacity = async (centerId, slotId) => {
 
 // Add a new slot
 // Add a new slot
-export const addNewSlot = async (centerId, newSlot) => {
-  console.log(centerId, newSlot); // Corrected this line
+export const addNewSlot = async (centerId, slotName, date, patientId) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/slots/add`, {
-      centerId,
-      slot: newSlot,
+      slotId: 0,
+      slot: slotName,
+      date: date,
+      capacity: 0,
+      vaccinationCenterId: centerId,
+      patientId,
     });
+    console.log(response);
     return response;
   } catch (error) {
     console.error("Error adding new slot:", error);

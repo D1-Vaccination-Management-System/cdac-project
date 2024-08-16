@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -36,6 +37,10 @@ public class Slots extends BaseEntity {
 	private LocalDate date;
 
 	private int capacity;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "userId")
+	private Patient patient;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "vaccination_center_id")

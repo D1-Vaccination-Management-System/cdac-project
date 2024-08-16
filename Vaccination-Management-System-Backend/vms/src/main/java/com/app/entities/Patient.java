@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,15 +26,16 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Patient extends User {
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id", nullable = false)
-    private Address address;
+	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinColumn(name = "address_id", nullable = false)
+	private Address address;
 
-    @Column(name = "time_registered")
-    @CreationTimestamp
-    private LocalDateTime timeRegistered;
-	
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "patient_id") 
-    private List<Appointments> appointments;
+	@Column(name = "time_registered")
+	@CreationTimestamp
+	private LocalDateTime timeRegistered;
+
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "patient_id")
+	@JsonIgnore
+	private List<Appointments> appointments;
 }

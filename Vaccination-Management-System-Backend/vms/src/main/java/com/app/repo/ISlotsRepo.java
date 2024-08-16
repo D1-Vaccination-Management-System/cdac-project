@@ -19,4 +19,6 @@ public interface ISlotsRepo extends JpaRepository<Slots, Long> {
 	Slots findByVaccinationCenterAndSlotAndDate(@Param("center") VaccinationCenter center,
 			@Param("slot") AvailableSlots slot, @Param("date") LocalDate date);
 
+	  Slots findBySlotAndDateAndPatientUserId(AvailableSlots slot, LocalDate date, Long patientId);
+
 }

@@ -33,3 +33,10 @@ export async function getHealthStaff(centerId) {
   );
   return response;
 }
+
+export async function addAppointment(id) {
+  const response = await axios.get(
+    `${API_BASE_URL}/health-staff/incrementAppointments/${id}`
+  );
+  return response;
+}

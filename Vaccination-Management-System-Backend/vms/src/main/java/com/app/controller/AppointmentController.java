@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.AppointmentDTO;
+import com.app.dto.HomeVisitAppointmentDTO;
 import com.app.entities.Slots;
 import com.app.entities.VaccinationCenter;
 import com.app.service.IAppointmentService;
@@ -29,6 +31,11 @@ public class AppointmentController {
 
 	@Autowired
 	private ISlotsService slotsService;
+
+	@GetMapping("/get-home-visit-appointments")
+	public ResponseEntity<List<HomeVisitAppointmentDTO>> getAppointmentByType() {
+		return ResponseEntity.status(HttpStatus.OK).body(appointmentService.getScheduledHomeVisitAppointments());
+	}
 
 	@GetMapping("/slots")
 	public ResponseEntity<List<Slots>> getAvailableSlots(@RequestParam Long centerId, LocalDate endDate) {

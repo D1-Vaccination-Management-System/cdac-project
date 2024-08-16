@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getVaccinationCenterDetails } from "../service/admin"; // Import the vaccination center service
+import { getVaccinationCenterDetails } from "../service/admin";
 import { toast } from "react-toastify";
 import { getHealthStaff, registerStaff } from "../service/healthstaff";
 import { addVaccine } from "../service/vaccine";
+import { getHomeVisitAppointment } from "../service/appointment";
+import { addAppointment } from "../service/healthstaff"; // Import the new API function
 
 const AdminDashboard = () => {
   const [vaccinationDetails, setVaccinationDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [view, setView] = useState("home"); // Control what to display in the main area
-  const [adminData, setAdminData] = useState(null); // Admin data for profile view and update
+  const [view, setView] = useState("home");
+  const [adminData, setAdminData] = useState(null);
   const [StaffFirstName, setFirstName] = useState("");
   const [StaffLastName, setLastName] = useState("");
   const [StaffEmail, setEmail] = useState("");
@@ -22,12 +24,9 @@ const AdminDashboard = () => {
   const [vaccineDescription, setVaccineDescription] = useState("");
   const [ageGroup, setAgeGroup] = useState("");
   const [capacity, setCapacity] = useState(0);
+  const [appointments, setAppointments] = useState([]);
+  const [selectedStaff, setSelectedStaff] = useState(null);
   const navigate = useNavigate();
-
-  const appointments = [
-    { id: 1, patientName: "John Doe", date: "2024-08-14", time: "10:00 AM" },
-    { id: 2, patientName: "Jane Smith", date: "2024-08-14", time: "11:00 AM" },
-  ];
 
   useEffect(() => {
     const fetchVaccinationDetails = async () => {
@@ -43,7 +42,6 @@ const AdminDashboard = () => {
         const response = await getVaccinationCenterDetails(centerId);
         response.data.vaccinationCenterDto.centerName =
           response.data.vaccinationCenterDto.centerName.toUpperCase();
-        console.log(response.data);
         setVaccinationDetails(response.data);
       } catch (error) {
         setError("Failed to fetch vaccination details.");
@@ -52,10 +50,34 @@ const AdminDashboard = () => {
       }
     };
 
+    const fetchAppointments = async () => {
+      if (view === "home") {
+        try {
+          const response = await getHomeVisitAppointment();
+          setAppointments(response.data);
+        } catch (error) {
+          setError("Failed to fetch appointments.");
+        }
+      }
+    };
+
+    const fetchHealthStaff = async () => {
+      try {
+        const centerId = sessionStorage.getItem("vaccinationCenterId");
+        const response = await getHealthStaff(centerId);
+        console.log(response.data);
+        setStaffDetails(response.data);
+      } catch (error) {
+        toast.error("Failed to fetch staff details.");
+      }
+    };
+
     fetchVaccinationDetails();
-    if (view === "healthStaff") {
-      handleStaffDetails();
+    fetchAppointments();
+    if (view === "healthStaff" || view == "home") {
+      fetchHealthStaff();
     }
+
     const storedAdminData = {
       vaccinationCenterId: sessionStorage.getItem("vaccinationCenterId"),
       adminPhone: sessionStorage.getItem("adminPhone"),
@@ -79,27 +101,38 @@ const AdminDashboard = () => {
       ageGroup,
       capacity: Number(capacity),
     };
-    const response = await addVaccine(vaccineData, centerId);
-    if (response.status === 201) {
-      toast.success("Vaccine added successfully!");
-      setView("vaccines"); // Redirect to the vaccine list view after successful addition
+    try {
+      const response = await addVaccine(vaccineData, centerId);
+      if (response.status === 201) {
+        toast.success("Vaccine added successfully!");
+        setView("vaccines");
+      }
+    } catch (error) {
+      toast.error("Failed to add vaccine.");
     }
   };
-  const handleApprove = (id) => {
-    console.log(`Approved appointment with ID: ${id}`);
-    // Add logic to handle approval
+
+  const handleApprove = async (id) => {
+    console.log(id);
+    if (selectedStaff === null) {
+      toast.error("Please select a staff member to approve the appointment.");
+      return;
+    }
+
+    try {
+      await addAppointment(selectedStaff);
+      toast.success(
+        "Appointment approved and staff's appointment count updated."
+      );
+      // Optionally: remove the appointment from the list or refresh the list
+    } catch (error) {
+      toast.error("Failed to approve appointment.");
+    }
   };
 
-  const handleRevoke = (id) => {
+  const handleRevoke = async (id) => {
     console.log(`Revoked appointment with ID: ${id}`);
     // Add logic to handle revocation
-  };
-
-  const handleStaffDetails = async () => {
-    const centerId = sessionStorage.getItem("vaccinationCenterId");
-    const response = await getHealthStaff(centerId);
-    console.log(response.data);
-    setStaffDetails(response.data);
   };
 
   const handleStaffRegistration = async () => {
@@ -112,12 +145,19 @@ const AdminDashboard = () => {
       aadharCardNumber: StaffAadhaarCard,
       centerId: sessionStorage.getItem("vaccinationCenterId"),
     };
-    const response = await registerStaff(staffData);
-    if (response.status === 201) {
-      toast.success("Registrated Successfully");
-      setView("home");
-    } else toast.error("Registration Failed");
+    try {
+      const response = await registerStaff(staffData);
+      if (response.status === 201) {
+        toast.success("Registered Successfully");
+        setView("home");
+      } else {
+        toast.error("Registration Failed");
+      }
+    } catch (error) {
+      toast.error("Error during registration.");
+    }
   };
+
   const handleLogout = () => {
     sessionStorage.clear();
     navigate("/");
@@ -207,24 +247,52 @@ const AdminDashboard = () => {
                 <ul>
                   {appointments.map((appointment) => (
                     <li
-                      key={appointment.id}
+                      key={appointment.appointmentId}
                       className="mb-4 p-4 border rounded"
                     >
                       <p className="font-semibold">
-                        Patient Name: {appointment.patientName}
+                        Patient Name: {appointment.patient.firstName}{" "}
+                        {appointment.patient.lastName}
                       </p>
-                      <p>Date: {appointment.date}</p>
-                      <p>Time: {appointment.time}</p>
-                      <div className="mt-2 flex space-x-4">
+                      <p>
+                        Date:{" "}
+                        {new Date(
+                          appointment.bookedAppointmentDate
+                        ).toLocaleDateString()}
+                      </p>
+                      <p>
+                        Time:{" "}
+                        {new Date(
+                          appointment.bookedAppointmentDate
+                        ).toLocaleTimeString()}
+                      </p>
+                      <div className="mt-2">
+                        <label className="mr-2" htmlFor="staff-select">
+                          Assign Staff:
+                        </label>
+                        <select
+                          id="staff-select"
+                          value={selectedStaff || ""}
+                          onChange={(e) => setSelectedStaff(e.target.value)}
+                        >
+                          <option value="">Select a staff member</option>
+                          {StaffDetails.map((staff) => (
+                            <option key={staff.id} value={staff.id}>
+                              {staff.firstName} {staff.lastName}
+                            </option>
+                          ))}
+                        </select>
                         <button
-                          onClick={() => handleApprove(appointment.id)}
-                          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+                          onClick={() => handleApprove(selectedStaff.userId)}
+                          className="ml-4 bg-blue-500 text-white p-2 rounded"
                         >
                           Approve
                         </button>
                         <button
-                          onClick={() => handleRevoke(appointment.id)}
-                          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                          onClick={() =>
+                            handleRevoke(appointment.appointmentId)
+                          }
+                          className="ml-2 bg-red-500 text-white p-2 rounded"
                         >
                           Revoke
                         </button>
@@ -233,254 +301,142 @@ const AdminDashboard = () => {
                   ))}
                 </ul>
               ) : (
-                <p>No appointment requests pending.</p>
+                <p>No appointments available.</p>
               )}
             </div>
           </>
         )}
-
-        {view === "viewProfile" && (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4 text-gray-700">
-              View Profile
-            </h3>
-            {adminData ? (
-              <div>
-                <p>
-                  <strong className="text-gray-900">First Name:</strong>{" "}
-                  {adminData.adminFirstName}
-                </p>
-                <p>
-                  <strong className="text-gray-900">Last Name:</strong>{" "}
-                  {adminData.adminLastName}
-                </p>
-                <p>
-                  <strong className="text-gray-900">Email:</strong>{" "}
-                  {adminData.adminEmail}
-                </p>
-                <p>
-                  <strong className="text-gray-900">Phone Number:</strong>{" "}
-                  {adminData.adminPhone}
-                </p>
-              </div>
+        {view === "healthStaff" && (
+          <>
+            <h2 className="text-2xl font-bold mb-4">Health Staff Details</h2>
+            {StaffDetails.length > 0 ? (
+              <ul>
+                {StaffDetails.map((staff) => (
+                  <li key={staff.id} className="mb-4 p-4 border rounded">
+                    <p className="font-semibold">
+                      {staff.firstName} {staff.lastName}
+                    </p>
+                    <p>Email: {staff.email}</p>
+                    <p>Phone: {staff.phoneNumber}</p>
+                    <p>Aadhaar Card: {staff.aadharCardNumber}</p>
+                    <p>Appointments: {staff.appointmentCount}</p>
+                  </li>
+                ))}
+              </ul>
             ) : (
-              <p>No admin data found.</p>
+              <p>No staff details available.</p>
             )}
-          </div>
+          </>
         )}
-
         {view === "healthStaffRegister" && (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4 text-gray-700">
-              Register HealthStaff
-            </h3>
+          <div className="bg-white p-6 rounded shadow-md">
+            <h2 className="text-2xl font-bold mb-4">Register Health Staff</h2>
             <div className="mb-4">
-              <label className="block text-gray-600 mb-2">First Name</label>
+              <label className="block mb-2">First Name</label>
               <input
                 type="text"
-                name="StaffFirstName"
-                className="input input-bordered w-full"
+                value={StaffFirstName}
                 onChange={(e) => setFirstName(e.target.value)}
+                className="w-full border p-2 rounded"
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-600 mb-2">Last Name</label>
+              <label className="block mb-2">Last Name</label>
               <input
                 type="text"
-                name="StaffLastName"
-                className="input input-bordered w-full"
+                value={StaffLastName}
                 onChange={(e) => setLastName(e.target.value)}
+                className="w-full border p-2 rounded"
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-600 mb-2">Email</label>
+              <label className="block mb-2">Email</label>
               <input
                 type="email"
-                name="StaffEmail"
-                className="input input-bordered w-full"
+                value={StaffEmail}
                 onChange={(e) => setEmail(e.target.value)}
+                className="w-full border p-2 rounded"
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-600 mb-2">Phone Number</label>
-              <input
-                type="text"
-                name="StaffPhone"
-                className="input input-bordered w-full"
-                onChange={(e) => setPhoneNumber(e.target.value)}
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-600 mb-2">Password</label>
+              <label className="block mb-2">Password</label>
               <input
                 type="password"
-                name="StaffPassword"
-                className="input input-bordered w-full"
+                value={StaffPassword}
                 onChange={(e) => setPassword(e.target.value)}
+                className="w-full border p-2 rounded"
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-600 mb-2">
-                Aadhaar Card Number
-              </label>
+              <label className="block mb-2">Phone Number</label>
               <input
                 type="text"
-                name="StaffAadhaarCard"
-                className="input input-bordered w-full"
+                value={StaffPhone}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="w-full border p-2 rounded"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2">Aadhaar Card Number</label>
+              <input
+                type="text"
+                value={StaffAadhaarCard}
                 onChange={(e) => setAadharCardNumber(e.target.value)}
+                className="w-full border p-2 rounded"
               />
             </div>
             <button
-              type="submit"
-              className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
               onClick={handleStaffRegistration}
+              className="bg-blue-500 text-white p-2 rounded"
             >
-              Register
+              Register Staff
             </button>
           </div>
         )}
-
-        {/* Main Content Area */}
-        {view === "healthStaff" && (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4 text-gray-700">
-              Details of All Health Staff
-            </h3>
-            {StaffDetails.length > 0 ? (
-              <table className="min-w-full table-auto border-collapse border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-200">
-                    <th className="border border-gray-300 px-4 py-2">
-                      First Name
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2">
-                      Last Name
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2">Email</th>
-                    <th className="border border-gray-300 px-4 py-2">
-                      Password
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2">
-                      Phone Number
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2">
-                      Aadhaar Card Number
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2">
-                      No. of Appointments
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {StaffDetails.map((staff, index) => (
-                    <tr key={index} className="border-t">
-                      <td className="border border-gray-300 px-4 py-2">
-                        {staff.firstName}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {staff.lastName}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {staff.email}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {staff.password}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {staff.phoneNumber || "N/A"}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {staff.aadharCardNumber}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {staff.noOfAppointments}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p>No health staff found.</p>
-            )}
-          </div>
-        )}
-
         {view === "addVaccine" && (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4 text-gray-700">
-              Add Vaccine
-            </h3>
+          <div className="bg-white p-6 rounded shadow-md">
+            <h2 className="text-2xl font-bold mb-4">Add Vaccine</h2>
             <div className="mb-4">
-              <label className="block text-gray-600 mb-2">Vaccine Name</label>
+              <label className="block mb-2">Vaccine Name</label>
               <input
                 type="text"
-                name="vaccineName"
-                className="input input-bordered w-full"
+                value={vaccineName}
                 onChange={(e) => setVaccineName(e.target.value)}
+                className="w-full border p-2 rounded"
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-600 mb-2">Description</label>
+              <label className="block mb-2">Description</label>
               <textarea
-                name="description"
-                className="input input-bordered w-full"
+                value={vaccineDescription}
                 onChange={(e) => setVaccineDescription(e.target.value)}
-              ></textarea>
+                className="w-full border p-2 rounded"
+              />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-600 mb-2">Age Group</label>
+              <label className="block mb-2">Age Group</label>
               <input
                 type="text"
-                name="ageGroup"
-                className="input input-bordered w-full"
+                value={ageGroup}
                 onChange={(e) => setAgeGroup(e.target.value)}
+                className="w-full border p-2 rounded"
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-600 mb-2">Capacity</label>
+              <label className="block mb-2">Capacity</label>
               <input
                 type="number"
-                name="capacity"
-                className="input input-bordered w-full"
-                onChange={(e) => setCapacity(e.target.value)}
+                value={capacity}
+                onChange={(e) => setCapacity(Number(e.target.value))}
+                className="w-full border p-2 rounded"
               />
             </div>
             <button
-              type="submit"
-              className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
               onClick={handleAddVaccine}
+              className="bg-blue-500 text-white p-2 rounded"
             >
               Add Vaccine
             </button>
-          </div>
-        )}
-
-        {view === "vaccines" && (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4 text-gray-700">
-              Available Vaccines
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {vaccinationDetails?.vaccineDto.map((vaccine, index) => (
-                <div
-                  key={index}
-                  className="p-6 bg-gray-50 border border-gray-300 rounded-lg shadow-sm"
-                >
-                  <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                    Vaccine Name: {vaccine.vaccineName}
-                  </h4>
-                  <p className="text-gray-700 mb-2">
-                    <strong>Description:</strong> {vaccine.description}
-                  </p>
-                  <p className="text-gray-700 mb-2">
-                    <strong>Age Group:</strong> {vaccine.ageGroup}
-                  </p>
-                  <p className="text-gray-700">
-                    <strong>Capacity:</strong> {vaccine.capacity}
-                  </p>
-                </div>
-              ))}
-            </div>
           </div>
         )}
       </main>

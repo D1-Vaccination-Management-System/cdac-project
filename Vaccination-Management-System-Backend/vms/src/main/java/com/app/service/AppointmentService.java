@@ -1,10 +1,17 @@
 package com.app.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.dto.ApiResponse;
 import com.app.dto.AppointmentDTO;
+import com.app.dto.HomeVisitAppointmentDTO;
+import com.app.entities.Appointment_Status;
+import com.app.entities.Appointment_Type;
 import com.app.entities.Appointments;
 import com.app.entities.Patient;
 import com.app.entities.VaccinationCenter;
@@ -27,6 +34,17 @@ public class AppointmentService implements IAppointmentService {
 
 	@Autowired
 	private IVaccinationCenterRepo centerRepo;
+
+	@Autowired
+	private ModelMapper mapper;
+
+	@Override
+	public List<HomeVisitAppointmentDTO> getScheduledHomeVisitAppointments() {
+		return appointmentRepo
+				.findByAppointmentTypeAndAppointmentStatus(Appointment_Type.HOME_VISIT, Appointment_Status.SCHEDULED)
+				.stream().map(appointment -> mapper.map(appointment, HomeVisitAppointmentDTO.class))
+				.collect(Collectors.toList());
+	}
 
 	@Override
 	public ApiResponse addAppointment(AppointmentDTO appointmentDTO) {

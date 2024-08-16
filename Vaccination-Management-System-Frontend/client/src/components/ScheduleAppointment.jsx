@@ -4,8 +4,6 @@ import {
   getCenterByPincode,
   getAvailableSlots,
   scheduleAppointment,
-  getAllSlots,
-  updateSlotCapacity,
   addNewSlot,
 } from "../service/patient";
 
@@ -14,7 +12,6 @@ function ScheduleAppointment() {
   const [centers, setCenters] = useState([]);
   const [selectedCenter, setSelectedCenter] = useState({ id: "", name: "" });
   const [availableSlots, setAvailableSlots] = useState([]);
-  const [allSlots, setAllSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [appointmentType, setAppointmentType] = useState("");
   const [appointmentStatus, setAppointmentStatus] = useState("");
@@ -33,17 +30,15 @@ function ScheduleAppointment() {
   }, []);
 
   useEffect(() => {
-    async function fetchAllSlots() {
-      try {
-        const response = await getAllSlots();
-        setAllSlots(response.data);
-      } catch (err) {
-        console.error("Error fetching all slots:", err);
-      }
-    }
-
-    fetchAllSlots();
-  }, []);
+    // Hard-coded slots
+    const hardCodedSlots = [
+      { slotId: 1, slot: "SLOT_1", date: selectedDate, capacity: 0 },
+      { slotId: 2, slot: "SLOT_2", date: selectedDate, capacity: 0 },
+      { slotId: 3, slot: "SLOT_3", date: selectedDate, capacity: 0 },
+      { slotId: 4, slot: "SLOT_4", date: selectedDate, capacity: 0 },
+    ];
+    setAvailableSlots(hardCodedSlots);
+  }, [selectedDate]);
 
   useEffect(() => {
     const today = new Date();
@@ -87,24 +82,6 @@ function ScheduleAppointment() {
       try {
         const date = format(new Date(selectedDate), "yyyy-MM-dd");
         const response = await getAvailableSlots(selectedCenterId, date);
-
-        if (response.data.length === 0) {
-          const enumSlots = await getAllSlots();
-          setAvailableSlots(
-            enumSlots.data.map((slot) => ({
-              slot,
-              date: selectedDate,
-              capacity: 0,
-            }))
-          );
-        } else {
-          const filteredSlots = response.data
-            .filter((slot) => allSlots.includes(slot.slot))
-            .filter((slot) => slot.capacity <= 6);
-
-          setAvailableSlots(filteredSlots);
-        }
-
         setSelectedSlot(null);
         setError("");
       } catch (err) {
@@ -136,8 +113,8 @@ function ScheduleAppointment() {
     try {
       await scheduleAppointment(appointment);
       setAppointmentStatus("success");
-      updateCapacity();
-      addSlot();
+      // await updateCapacity(selectedSlot);
+      await addSlot(selectedSlot);
       setError("");
     } catch (err) {
       setAppointmentStatus("failure");
@@ -155,37 +132,20 @@ function ScheduleAppointment() {
 
   const addSlot = async (slot) => {
     try {
-      await addNewSlot(selectedCenter.id, slot);
-      // Option 1: Refetch all slots
-      const response = await getAllSlots();
-      setAllSlots(response.data);
-      // Option 2: Update availableSlots state directly
-      setAvailableSlots((prevSlots) => [...prevSlots, slot]);
+      console.log(selectedCenter.id);
+      console.log(slot.slot);
+      console.log("For add new " + slot.date);
+      const patientId = sessionStorage.getItem("patientId");
+      await addNewSlot(selectedCenter.id, slot.slot, slot.date, patientId);
+      setAvailableSlots((prevSlots) =>
+        prevSlots.map((s) =>
+          s.slotId === slot.slotId ? { ...s, capacity: s.capacity - 1 } : s
+        )
+      ); // Set initial capacity as needed
       console.log("Slot added successfully.");
     } catch (err) {
       console.error("Error adding new slot:", err);
       setError("Failed to add new slot. Please try again.");
-    }
-  };
-
-  const updateCapacity = async (slotId) => {
-    try {
-      await updateSlotCapacity(selectedCenter.id, slotId);
-      // Option 1: Refetch all slots
-      const response = await getAllSlots();
-      setAllSlots(response.data);
-      // Option 2: Update availableSlots state directly
-      setAvailableSlots((prevSlots) =>
-        prevSlots.map((slot) =>
-          slot.slotId === slotId
-            ? { ...slot, capacity: slot.capacity - 1 }
-            : slot
-        )
-      );
-      console.log("Slot capacity updated successfully.");
-    } catch (err) {
-      console.error("Error updating slot capacity:", err);
-      setError("Failed to update slot capacity. Please try again.");
     }
   };
 
@@ -205,124 +165,90 @@ function ScheduleAppointment() {
       <div className="flex flex-col gap-4 w-full max-w-md">
         <div className="flex flex-col gap-4">
           <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="block mb-2 text-gray-700">Enter Pincode:</label>
-              <input
-                type="text"
-                value={pincode}
-                onChange={handlePincodeChange}
-                className="border border-gray-300 p-2 w-full rounded"
-                placeholder="Enter your pincode"
-              />
-            </div>
-            <div className="flex-1">
-              {centers.length > 0 && (
-                <>
-                  <label className="block mb-2 text-gray-700">
-                    Select Center:
-                  </label>
-                  <select
-                    value={selectedCenter.id}
-                    onChange={handleCenterChange}
-                    className="border border-gray-300 p-2 w-full rounded"
-                  >
-                    <option value="">Select Center</option>
-                    {centers.map((center) => (
-                      <option key={center.centerId} value={center.centerId}>
-                        {center.centerName}
-                      </option>
-                    ))}
-                  </select>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="flex-1">
-            <label className="block mb-2 text-gray-700">Select Date:</label>
-            <select
-              value={selectedDate}
-              onChange={handleDateChange}
-              className="border border-gray-300 p-2 w-full rounded"
+            <input
+              type="text"
+              value={pincode}
+              onChange={handlePincodeChange}
+              placeholder="Enter Pincode"
+              className="border p-2"
+            />
+            <button
+              onClick={filterCenters}
+              className="bg-blue-500 text-white p-2 rounded"
             >
-              {dateOptions.map((date) => (
-                <option key={date} value={date}>
-                  {format(new Date(date), "MMM d, yyyy")}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {availableSlots.length > 0 && (
-          <div className="w-full mt-4">
-            <h4 className="text-lg font-bold mb-2">Available Slots:</h4>
-            <div className="flex flex-wrap gap-4 justify-center">
-              {availableSlots.map((slot) => (
-                <div
-                  key={slot.slotId}
-                  className={`cursor-pointer p-2 rounded border  ${
-                    selectedSlot?.slotId === slot.slotId
-                      ? "bg-blue-500 text-white"
-                      : "bg-white border-gray-300"
-                  }`}
-                  onClick={() => handleSlotClick(slot)}
-                >
-                  {slot.slot}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="flex flex-col gap-4 mt-4">
-          <div>
-            <label className="block mb-2 text-gray-700">
-              Appointment Type:
-            </label>
-            <select
-              value={appointmentType}
-              onChange={handleAppointmentTypeChange}
-              className="border border-gray-300 p-2 w-full rounded"
-            >
-              <option value="">Select Appointment Type</option>
-              <option value="CENTER_VISIT">Center Visit</option>
-              <option value="HOME_VISIT">Home Visit</option>
-            </select>
+              Search Centers
+            </button>
           </div>
 
-          {selectedSlot && (
-            <div className="flex flex-col gap-4">
-              <p>
-                Selected Slot:{" "}
-                <strong>
-                  {selectedSlot.slot} - {selectedSlot.capacity}
-                </strong>
-              </p>
+          <select
+            value={selectedCenter.id}
+            onChange={handleCenterChange}
+            className="border p-2"
+          >
+            <option value="">Select Center</option>
+            {centers.map((center) => (
+              <option key={center.centerId} value={center.centerId}>
+                {center.centerName}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={selectedDate}
+            onChange={handleDateChange}
+            className="border p-2"
+          >
+            {dateOptions.map((date) => (
+              <option key={date} value={date}>
+                {format(new Date(date), "MMMM d, yyyy")}
+              </option>
+            ))}
+          </select>
+
+          <div className="flex flex-col gap-2">
+            {availableSlots.map((slot) => (
               <button
-                onClick={handleScheduleAppointment}
-                className="bg-blue-500 text-white p-2 rounded"
+                key={slot.slotId}
+                className={`border p-2 text-left ${
+                  selectedSlot && selectedSlot.slotId === slot.slotId
+                    ? "bg-gray-200"
+                    : "bg-white"
+                }`}
+                onClick={() => handleSlotClick(slot)}
               >
-                Schedule Appointment
+                Slot {slot.slot} - Capacity: {slot.capacity}
               </button>
-            </div>
+            ))}
+          </div>
+
+          <select
+            value={appointmentType}
+            onChange={handleAppointmentTypeChange}
+            className="border p-2"
+          >
+            <option value="">Select Appointment Type</option>
+            <option value="CENTER_VISIT">CENTER_VISIT</option>
+            <option value="HOME_VISIT">HOME_VISIT</option>
+          </select>
+
+          <button
+            onClick={handleScheduleAppointment}
+            className="bg-green-500 text-white p-2 rounded"
+          >
+            Schedule Appointment
+          </button>
+
+          {error && <p className="text-red-500">{error}</p>}
+          {appointmentStatus === "success" && (
+            <p className="text-green-500">
+              Appointment scheduled successfully!
+            </p>
+          )}
+          {appointmentStatus === "failure" && (
+            <p className="text-red-500">Failed to schedule appointment.</p>
           )}
         </div>
       </div>
-
-      {error && <p className="mt-4 text-red-500">Error: {error}</p>}
-
-      {appointmentStatus && (
-        <p
-          className={`mt-4 ${
-            appointmentStatus === "success" ? "text-green-500" : "text-red-500"
-          }`}
-        >
-          {appointmentStatus === "success"
-            ? "Appointment scheduled successfully!"
-            : "Failed to schedule appointment."}
-        </p>
-      )}
     </div>
   );
 }

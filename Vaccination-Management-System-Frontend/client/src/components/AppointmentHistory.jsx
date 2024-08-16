@@ -20,6 +20,7 @@ const AppointmentHistoryTable = () => {
 
       try {
         // Fetching appointment history
+        console.log("Patient ID :", patientId);
         const historyResponse = await axios.get(
           `${API_BASE_URL}/patient/get-patient-appointment-history`,
           {

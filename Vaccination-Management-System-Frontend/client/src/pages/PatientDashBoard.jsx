@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/SideBar";
 import UpdateProfile from "../components/UpdatePatient";
 import UpdateAddress from "../components/UpdateAddressDetails";
-import VaccinationCertificate from "../components/AppointmentCertificate";
 import DeleteProfile from "../components/DeleteProfile";
 import AppointmentHistory from "../components/AppointmentHistory";
 import ScheduleAppointment from "../components/ScheduleAppointment";
@@ -12,6 +11,7 @@ import SpecialOffer from "../components/SpecialOffer";
 import { MdCalendarToday, MdUpcoming, MdHistory, MdStar } from "react-icons/md";
 
 import "react-toastify/dist/ReactToastify.css";
+import VaccinationCertificate from "../components/AppointmentCertificate";
 
 function PatientDashboard() {
   const [selectedComponent, setSelectedComponent] = useState(null);
@@ -24,6 +24,10 @@ function PatientDashboard() {
       sessionStorage.clear();
       // Navigate to the login page
       navigate("/login");
+    }
+    if (component === "HomeDashBoard") {
+      setSelectedComponent(null);
+      setInnerComponent(null);
     } else {
       setSelectedComponent(component);
     }
@@ -48,8 +52,9 @@ function PatientDashboard() {
         )}
         {selectedComponent === null && (
           <>
-            <h2 className="text-3xl font-semibold mb-6 text-center text-gray-800">
-              Welcome to Your Dashboard
+            <h2 className="text-3xl font-semibold mb-6 text-left text-gray-800">
+              Hello {sessionStorage.getItem("patientFirstName")}, Welcome to
+              VacciCare...
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">

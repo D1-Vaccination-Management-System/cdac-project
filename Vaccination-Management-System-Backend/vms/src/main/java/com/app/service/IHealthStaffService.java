@@ -18,4 +18,5 @@ public interface IHealthStaffService {
 
 	public List<HealthStaff> getAllStaffByCenterId(Long centerId);
 
+	void incrementNoOfAppointments(Long staffId);
 }

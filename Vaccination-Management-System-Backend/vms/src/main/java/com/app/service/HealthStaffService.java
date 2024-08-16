@@ -30,6 +30,19 @@ public class HealthStaffService implements IHealthStaffService {
 	private ModelMapper mapper;
 
 	@Override
+	public void incrementNoOfAppointments(Long staffId) {
+		// Fetch the HealthStaff entity by ID
+		HealthStaff healthStaff = healthStaffRepo.findById(staffId)
+				.orElseThrow(() -> new RuntimeException("HealthStaff not found with ID: " + staffId));
+
+		// Increment the number of appointments
+		healthStaff.setNoOfAppointments(healthStaff.getNoOfAppointments() + 1);
+
+		// Save the updated entity
+		healthStaffRepo.save(healthStaff);
+	}
+
+	@Override
 	public ApiResponse addHealthStaff(HealthStaffDTO healthStaffDTO) {
 
 		try {
