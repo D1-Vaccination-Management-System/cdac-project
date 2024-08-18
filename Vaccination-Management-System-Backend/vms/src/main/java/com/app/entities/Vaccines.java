@@ -44,7 +44,7 @@ public class Vaccines extends BaseEntity {
 	private LocalDate dateAdded;
 
 	@ManyToOne
-	@JoinColumn(name = "centerId", nullable = false)
+	@JoinColumn(name = "center_id", nullable = false)
 	private VaccinationCenter vaccinationCenter;
 
 	@Column(nullable = false)

@@ -1,6 +1,5 @@
 package com.app.entities;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
@@ -23,5 +22,9 @@ public class HealthStaff extends User {
     
     @Column(name = "center_id")
     private Long centerId;
+//    
+//    @Column(name = "limit")
+//    private Long limit;
+    
     
 }

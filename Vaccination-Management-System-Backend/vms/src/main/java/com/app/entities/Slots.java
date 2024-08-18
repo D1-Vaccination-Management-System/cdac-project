@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

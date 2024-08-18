@@ -7,9 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.dto.ApiResponse;
+import com.app.dto.AppointmentDetailsDTO;
 import com.app.dto.HealthStaffDTO;
+import com.app.dto.HealthStaffUpdateDTO;
 import com.app.dto.LoginDTO;
-import com.app.entities.Appointments;
 import com.app.entities.HealthStaff;
 import com.app.enums.Role;
 import com.app.exception.ApiException;
@@ -17,7 +18,10 @@ import com.app.exception.ResourceNotFoundException;
 import com.app.repo.IAppointmentRepo;
 import com.app.repo.IHealthStaffRepo;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional
 public class HealthStaffService implements IHealthStaffService {
 
 	@Autowired
@@ -28,19 +32,6 @@ public class HealthStaffService implements IHealthStaffService {
 
 	@Autowired
 	private ModelMapper mapper;
-
-	@Override
-	public void incrementNoOfAppointments(Long staffId) {
-		// Fetch the HealthStaff entity by ID
-		HealthStaff healthStaff = healthStaffRepo.findById(staffId)
-				.orElseThrow(() -> new RuntimeException("HealthStaff not found with ID: " + staffId));
-
-		// Increment the number of appointments
-		healthStaff.setNoOfAppointments(healthStaff.getNoOfAppointments() + 1);
-
-		// Save the updated entity
-		healthStaffRepo.save(healthStaff);
-	}
 
 	@Override
 	public ApiResponse addHealthStaff(HealthStaffDTO healthStaffDTO) {
@@ -61,13 +52,12 @@ public class HealthStaffService implements IHealthStaffService {
 	}
 
 	@Override
-	public List<Appointments> getAllAppointmentsByStaffId(Long staffId) {
-		HealthStaff staff;
-		if (healthStaffRepo.existsById(staffId)) {
-			staff = healthStaffRepo.findById(staffId)
-					.orElseThrow(() -> new ResourceNotFoundException("Staff Not found!"));
-		}
-		return appointmentRepo.findAByStaff_userId(staffId);
+	public List<AppointmentDetailsDTO> getAllAppointmentsByStaffId(Long staffId) {
+		// Fetch the HealthStaff entity and throw an exception if not found
+		HealthStaff staff = healthStaffRepo.findById(staffId)
+				.orElseThrow(() -> new ResourceNotFoundException("Staff Not found with ID: " + staffId));
+
+		return appointmentRepo.getAllAppointmentsByStaffId(staffId);
 	}
 
 	@Override
@@ -76,8 +66,24 @@ public class HealthStaffService implements IHealthStaffService {
 				.orElseThrow(() -> new ResourceNotFoundException("Center Id Invalid!"));
 	}
 
-//
-//	@Override
+	@Override
+	public ApiResponse updateHealthStaff(String email, HealthStaffUpdateDTO healthStaffUpdateDTO) {
+		try {
+			HealthStaff staff = healthStaffRepo.findByEmail(email)
+					.orElseThrow(() -> new ResourceNotFoundException("Staff Not Found!"));
+			staff.setEmail(healthStaffUpdateDTO.getEmail());
+			staff.setPassword(healthStaffUpdateDTO.getPassword());
+			staff.setFirstName(healthStaffUpdateDTO.getFirstName());
+			staff.setLastName(healthStaffUpdateDTO.getLastName());
+			staff.setPassword(healthStaffUpdateDTO.getPassword());
+			healthStaffRepo.save(staff);
+
+		} catch (Exception e) {
+			return new ApiResponse("Error while Updating the Health Staff");
+		}
+		return new ApiResponse("Staff Updated Successfully!");
+	}
+
 //	public HealthStaff getHealthStaffWithAllItsAppointments(String email) {
 //		HealthStaff staffWithAllItsAppointments = healthStaffRepo.getStaffWithAllAppointmentDetails(email)
 //				.orElseThrow(() -> new ResourceNotFoundException("No Staff Found!"));

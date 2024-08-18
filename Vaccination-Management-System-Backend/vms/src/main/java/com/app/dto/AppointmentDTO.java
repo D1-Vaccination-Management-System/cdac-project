@@ -18,12 +18,12 @@ public class AppointmentDTO {
 
 	private Long patientId;
 
-	private Long vaccination_center_id;
+	private Long vaccinationCenterId;
 
 	private LocalDateTime bookedAppointmentDate;
 
 	private Appointment_Type appointmentType;
-
+	
 	private Appointment_Status appointmentStatus;
 
 }

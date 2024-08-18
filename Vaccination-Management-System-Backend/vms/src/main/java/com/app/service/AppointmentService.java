@@ -9,16 +9,19 @@ import org.springframework.stereotype.Service;
 
 import com.app.dto.ApiResponse;
 import com.app.dto.AppointmentDTO;
+import com.app.dto.AppointmentDetails2DTO;
 import com.app.dto.HomeVisitAppointmentDTO;
 import com.app.entities.Appointment_Status;
 import com.app.entities.Appointment_Type;
 import com.app.entities.Appointments;
 import com.app.entities.Patient;
 import com.app.entities.VaccinationCenter;
+import com.app.entities.Vaccines;
 import com.app.exception.ResourceNotFoundException;
 import com.app.repo.IAppointmentRepo;
 import com.app.repo.IPatientRepo;
 import com.app.repo.IVaccinationCenterRepo;
+import com.app.repo.IVaccineRepo;
 
 import jakarta.transaction.Transactional;
 
@@ -36,6 +39,9 @@ public class AppointmentService implements IAppointmentService {
 	private IVaccinationCenterRepo centerRepo;
 
 	@Autowired
+	private IVaccineRepo vaccineRepo;
+
+	@Autowired
 	private ModelMapper mapper;
 
 	@Override
@@ -48,14 +54,11 @@ public class AppointmentService implements IAppointmentService {
 
 	@Override
 	public ApiResponse addAppointment(AppointmentDTO appointmentDTO) {
-		// Fetching related entities
 		Patient patient = patientRepo.findById(appointmentDTO.getPatientId())
 				.orElseThrow(() -> new ResourceNotFoundException("Cannot Find Patient!"));
 
-		VaccinationCenter center = centerRepo.findById(appointmentDTO.getVaccination_center_id())
+		VaccinationCenter center = centerRepo.findById(appointmentDTO.getVaccinationCenterId())
 				.orElseThrow(() -> new ResourceNotFoundException("Cannot Find Vaccination Center!"));
-
-//	    Appointments appointment = mapper.map(appointmentDTO, Appointments.class);
 
 		Appointments appointment = new Appointments();
 
@@ -69,6 +72,43 @@ public class AppointmentService implements IAppointmentService {
 		appointmentRepo.save(appointment);
 
 		return new ApiResponse("Appointment Added Successfully!");
+	}
+
+	public String assignVaccineToAppointment(AppointmentDetails2DTO dto) {
+		// Fetch the appointment by appointmentId
+		Appointments appointment = appointmentRepo.findByAppointmentId(dto.getAppointmentId());
+		if (appointment == null) {
+			return "Appointment not found!";
+		}
+
+		Vaccines vaccine = vaccineRepo.findByVaccineNameAndVaccinationCenter(dto.getVaccines(),
+				appointment.getVaccinationCenter());
+		if (vaccine == null) {
+			return "Vaccine not found!";
+		}
+
+		appointment.setAppointmentStatus(Appointment_Status.COMPLETED);
+		appointment.setVaccine(vaccine);
+		appointmentRepo.save(appointment);
+
+		return "Vaccine Marked as Due";
+	}
+
+	public String assignVaccineToAppointmentDue(AppointmentDetails2DTO dto) {
+		Appointments appointment = appointmentRepo.findByAppointmentId(dto.getAppointmentId());
+		if (appointment == null)
+			return "Appointment not found!";
+
+		Vaccines vaccine = vaccineRepo.findByVaccineNameAndVaccinationCenter(dto.getVaccines(),
+				appointment.getVaccinationCenter());
+		if (vaccine == null)
+			return "Vaccine not found!";
+
+		appointment.setAppointmentStatus(Appointment_Status.PENDING);
+		appointment.setVaccine(vaccine);
+		appointmentRepo.save(appointment);
+
+		return "Vaccine Marked as Done";
 	}
 
 }

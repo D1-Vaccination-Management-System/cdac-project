@@ -30,39 +30,44 @@ import lombok.Setter;
 @Table(name = "appointments")
 public class Appointments extends BaseEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "appointment_id", nullable = false)
-	private Long appointmentId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "appointment_id", nullable = false)
+    private Long appointmentId;
 
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "patient_id", nullable = false)
-	private Patient patient;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "patient_id", nullable = false)
+    private Patient patient;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "staff_id", nullable = true)
-	private HealthStaff staff;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "staff_id", nullable = true)
+    private HealthStaff staff;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "vaccination_center_id", nullable = false)
-	private VaccinationCenter vaccinationCenter;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "vaccination_center_id", nullable = false)
+    private VaccinationCenter vaccinationCenter;
+    
 
-	@Column(name = "appointment_date", nullable = false)
-	private LocalDateTime bookedAppointmentDate;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "vaccine_id", nullable = true)
+    private Vaccines vaccine;
 
-	@CreationTimestamp
-	@Column(name = "booked_datetime", nullable = false, updatable = false)
-	private LocalDateTime createdAppointmentOn;
+    @Column(name = "appointment_date", nullable = false)
+    private LocalDateTime bookedAppointmentDate;
 
-	@UpdateTimestamp
-	@Column(name = "updated_datetime")
-	private LocalDateTime updatedAppointmentOn;
+    @CreationTimestamp
+    @Column(name = "booked_datetime", nullable = false, updatable = false)
+    private LocalDateTime createdAppointmentOn;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "appointment_status", length = 30)
-	private Appointment_Status appointmentStatus;
+    @UpdateTimestamp
+    @Column(name = "updated_datetime")
+    private LocalDateTime updatedAppointmentOn;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "appointment_type", length = 30)
-	private Appointment_Type appointmentType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "appointment_status", length = 30)
+    private Appointment_Status appointmentStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "appointment_type", length = 30)
+    private Appointment_Type appointmentType;
 }

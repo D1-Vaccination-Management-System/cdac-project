@@ -22,11 +22,13 @@ const HealthStaffLogin = () => {
         const response = await healthStaffLogin(email, password);
         console.log("Response:", response);
         if (response.data) {
+          sessionStorage.setItem("staffId", response.data.userId);
           sessionStorage.setItem("staffEmail", response.data.email);
           sessionStorage.setItem("staffPassword", response.data.password);
           sessionStorage.setItem("staffFirstName", response.data.firstName);
           sessionStorage.setItem("staffLastName", response.data.lastName);
           sessionStorage.setItem("staffPhone", response.data.phoneNumber);
+          sessionStorage.setItem("centerId", response.data.centerId);
 
           toast.success("Login Successful!");
           navigate("/health-staff/dashboard");

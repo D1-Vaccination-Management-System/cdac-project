@@ -122,6 +122,7 @@ const Register = () => {
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full"
                   placeholder="Phone Number"
+                  maxLength={10}
                 />
               </div>
               <div className="flex justify-center">
@@ -131,6 +132,7 @@ const Register = () => {
                   onChange={(e) => setAadharCardNumber(e.target.value)}
                   className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full"
                   placeholder="Aadhar Card Number"
+                  maxLength={12}
                 />
               </div>
             </div>

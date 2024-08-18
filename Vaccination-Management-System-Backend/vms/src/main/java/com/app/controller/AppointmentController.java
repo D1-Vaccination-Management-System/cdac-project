@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.AppointmentDTO;
+import com.app.dto.AppointmentDetails2DTO;
 import com.app.dto.HomeVisitAppointmentDTO;
 import com.app.entities.Slots;
 import com.app.entities.VaccinationCenter;
@@ -51,6 +52,24 @@ public class AppointmentController {
 	public ResponseEntity<String> scheduleAppointment(@RequestBody AppointmentDTO appointmentDTO) {
 		appointmentService.addAppointment(appointmentDTO);
 		return ResponseEntity.ok("Success");
+	}
+
+	@PostMapping("/assign-vaccine")
+	public ResponseEntity<String> assignVaccineToAppointment(@RequestBody AppointmentDetails2DTO dto) {
+		String result = appointmentService.assignVaccineToAppointment(dto);
+		if (result.contains("not found")) {
+			return ResponseEntity.status(404).body(result);
+		}
+		return ResponseEntity.ok(result);
+	}
+
+	@PostMapping("/assign-vaccine-due")
+	public ResponseEntity<String> assignVaccineToAppointmentDue(@RequestBody AppointmentDetails2DTO dto) {
+		String result = appointmentService.assignVaccineToAppointmentDue(dto);
+		if (result.contains("not found")) {
+			return ResponseEntity.status(404).body(result);
+		}
+		return ResponseEntity.ok(result);
 	}
 
 }

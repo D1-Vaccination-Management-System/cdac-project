@@ -1,158 +1,359 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
-
-import { healthStaffAppointments } from "../service/healthstaff";
+import { useNavigate } from "react-router-dom";
+import {
+  assignVaccineToAppointment,
+  assignVaccineToAppointmentDue,
+  getAllAppointmentsByStaffId,
+  updateStaffProfile,
+} from "../service/healthstaff";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import VaccineDropdown from "../components/VaccineDropdown";
 
 function HealthStaffDashboard() {
   const [appointments, setAppointments] = useState([]);
+  const [vaccineName, setVaccineName] = useState("");
   const [loading, setLoading] = useState(true);
-  const staffId = sessionStorage.getItem("staffId");
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [error, setError] = useState(null);
+  const [view, setView] = useState("home");
+  const [doneButtonsVisibility, setDoneButtonsVisibility] = useState({});
+
+  const [staffFirstName, setFirstName] = useState("");
+  const [staffLastName, setLastName] = useState("");
+  const [staffEmail, setEmail] = useState("");
+  const [staffPhone, setPhone] = useState("");
+  const [staffPassword, setPassword] = useState("");
+
+  const navigate = useNavigate();
+
+  const storedStaffData = {
+    staffId: sessionStorage.getItem("staffId"),
+    staffEmail: sessionStorage.getItem("staffEmail"),
+    staffPassword: sessionStorage.getItem("staffPassword"),
+    staffFirstName: sessionStorage.getItem("staffFirstName"),
+    staffLastName: sessionStorage.getItem("staffLastName"),
+    staffPhone: sessionStorage.getItem("staffPhone"),
+  };
 
   useEffect(() => {
-    // Fetch staff data along with appointments
     const fetchAppointments = async () => {
       try {
-        const response = await healthStaffAppointments(staffId);
-        setAppointments(response.data.listOfAppointments); // Adjust according to your API response
+        const response = await getAllAppointmentsByStaffId(
+          storedStaffData.staffId
+        );
+        setAppointments(response.data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching appointments:", error);
         setLoading(false);
+        toast.error("Failed to load appointments");
       }
     };
 
     fetchAppointments();
-  }, []);
 
-  // Function to handle "Due" button click
-  const handleDue = (appointmentId) => {
-    // Update status logic here
-    console.log(`Mark appointment ${appointmentId} as Due`);
+    if (storedStaffData.staffEmail) {
+      setFirstName(storedStaffData.staffFirstName);
+      setLastName(storedStaffData.staffLastName);
+      setEmail(storedStaffData.staffEmail);
+      setPhone(storedStaffData.staffPhone);
+      setPassword(storedStaffData.staffPassword);
+    }
+  }, [storedStaffData.staffId, storedStaffData.staffEmail]);
+
+  const handleDue = async (appointmentId) => {
+    try {
+      const response = await assignVaccineToAppointmentDue(
+        appointmentId,
+        vaccineName
+      );
+      console.log(`Mark appointment ${appointmentId} as Due`, response.data);
+
+      // Show toast and make the "Done" button visible again
+      toast.warning("Appointment Due!");
+      setDoneButtonsVisibility((prev) => ({
+        ...prev,
+        [appointmentId]: true,
+      }));
+    } catch (error) {
+      console.error("Failed to mark appointment as Due:", error);
+      toast.warning("Failed to mark as Due");
+    }
   };
 
-  // Function to handle "Done" button click
-  const handleDone = (appointmentId) => {
-    // Update status logic here
-    console.log(`Mark appointment ${appointmentId} as Done`);
+  const handleDone = async (appointmentId) => {
+    try {
+      const response = await assignVaccineToAppointment(
+        appointmentId,
+        vaccineName
+      );
+      console.log(response);
+      console.log(`Mark appointment ${appointmentId} as Done`, response.data);
+
+      // Show toast and hide the "Done" button
+      toast.success("Appointment marked as Successful!");
+      setDoneButtonsVisibility((prev) => ({
+        ...prev,
+        [appointmentId]: false,
+      }));
+    } catch (error) {
+      console.error("Failed to mark appointment as Done:", error);
+      toast.error("Failed to mark as Done");
+    }
   };
 
-  // Function to handle logout
   const handleLogout = () => {
-    // Clear session storage
     sessionStorage.clear();
-    // Navigate to login page
     navigate("/health-staff/login");
+    toast.success("Logged out successfully");
+  };
+
+  const handleUpdateProfile = async () => {
+    try {
+      const updateStaffData = {
+        firstName: staffFirstName,
+        lastName: staffLastName,
+        email: staffEmail,
+        password: staffPassword,
+        phoneNumber: staffPhone,
+      };
+      await updateStaffProfile(storedStaffData.staffEmail, updateStaffData);
+
+      setFirstName(staffFirstName);
+      setLastName(staffLastName);
+      setEmail(staffEmail);
+      setPhone(staffPhone);
+      setPassword(staffPassword);
+
+      sessionStorage.setItem("staffFirstName", staffFirstName);
+      sessionStorage.setItem("staffLastName", staffLastName);
+      sessionStorage.setItem("staffEmail", staffEmail);
+      sessionStorage.setItem("staffPhone", staffPhone);
+      sessionStorage.setItem("staffPassword", staffPassword);
+
+      setView("viewProfile");
+      toast.success("Profile updated successfully");
+    } catch (error) {
+      console.error("Failed to update staff profile:", error);
+      setError("Failed to update profile!");
+      toast.error("Failed to update profile");
+    }
   };
 
   return (
     <div className="container mx-auto p-4 flex">
-      {" "}
-      {/* Added flex class for horizontal layout */}
-      {/* Sidebar */}
-      <aside></aside>
       <aside className="w-64 bg-gray-800 text-white h-screen">
         <div className="p-4">
-          <h1 className="text-xl font-bold mb-6">Admin Dashboard</h1>
+          <h1 className="text-xl font-bold mb-6">Staff Dashboard</h1>
           <ul>
             <li>
-              <a
+              <button
                 onClick={() => setView("home")}
-                className="block p-2 hover:bg-gray-700 rounded"
+                className="block p-2 hover:bg-gray-700 rounded w-full text-left"
               >
                 Home
-              </a>
+              </button>
             </li>
             <li>
-              <a
+              <button
                 onClick={() => setView("viewProfile")}
-                className="block p-2 hover:bg-gray-700 rounded"
+                className="block p-2 hover:bg-gray-700 rounded w-full text-left"
               >
                 View Profile
-              </a>
+              </button>
             </li>
             <li>
-              <a
+              <button
                 onClick={() => setView("updateProfile")}
-                className="block p-2 hover:bg-gray-700 rounded"
+                className="block p-2 hover:bg-gray-700 rounded w-full text-left"
               >
                 Update Profile
-              </a>
+              </button>
             </li>
             <li>
-              <a
+              <button
                 onClick={() => setView("vaccines")}
-                className="block p-2 hover:bg-gray-700 rounded"
+                className="block p-2 hover:bg-gray-700 rounded w-full text-left"
               >
                 Available Vaccines
-              </a>
+              </button>
             </li>
             <li>
-              <a
+              <button
                 onClick={handleLogout}
-                className="block p-2 hover:bg-gray-700 rounded"
+                className="block p-2 hover:bg-gray-700 rounded w-full text-left"
               >
                 Logout
-              </a>
+              </button>
             </li>
           </ul>
         </div>
       </aside>
-      <div className="flex-1">
-        {" "}
-        {/* This div takes the remaining space */}
+
+      <main className="flex-1 p-6">
         <h1 className="text-3xl font-bold mb-4">Health Staff Dashboard</h1>
         <br />
-        <h2 className="text-2xl font-bold mb-4">Your Scheduled Appointments</h2>
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <table className="min-w-full bg-white border border-gray-300">
-            <thead>
-              <tr>
-                <th className="py-2 px-4 border-b">Appointment ID</th>
-                <th className="py-2 px-4 border-b">Patient ID</th>
-                <th className="py-2 px-4 border-b">Vaccination Center ID</th>
-                <th className="py-2 px-4 border-b">Appointment Date</th>
-                <th className="py-2 px-4 border-b">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {appointments.map((appointment) => (
-                <tr key={appointment.appointmentId}>
-                  <td className="py-2 px-4 border-b">
-                    {appointment.appointmentId}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {appointment.patientId}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {appointment.vaccination_center_id}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {appointment.bookedAppointmentDate}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    <button
-                      onClick={() => handleDue(appointment.appointmentId)}
-                      className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-4 rounded mr-2"
-                    >
-                      Due
-                    </button>
-                    <button
-                      onClick={() => handleDone(appointment.appointmentId)}
-                      className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-4 rounded"
-                    >
-                      Done
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {view === "home" && (
+          <div>
+            <h2 className="text-2xl font-bold mb-4">
+              Your Scheduled Appointments
+            </h2>
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              <table className="min-w-full bg-white border border-gray-300">
+                <thead>
+                  <tr>
+                    <th className="py-2 px-4 border-b">Patient Name</th>
+                    <th className="py-2 px-4 border-b">Patient Address</th>
+                    <th className="py-2 px-4 border-b">
+                      Vaccination Center Name
+                    </th>
+                    <th className="py-2 px-4 border-b">Vaccine List</th>
+                    <th className="py-2 px-4 border-b">Appointment Date</th>
+                    <th className="py-2 px-4 border-b">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {appointments.map((appointment, index) => (
+                    <tr key={index}>
+                      <td className="py-2 px-4 border-b">
+                        {appointment.patientName}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {`${appointment.patientStreet}, ${appointment.patientCity}, ${appointment.patientState} - ${appointment.patientZipCode}`}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {appointment.vaccinationCenterName}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        <VaccineDropdown setVaccineName={setVaccineName} />
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {appointment.appointmentDate}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        <button
+                          onClick={() => handleDue(appointment.appointmentId)}
+                          className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-4 rounded mr-2"
+                        >
+                          Due
+                        </button>
+                        {doneButtonsVisibility[appointment.appointmentId] !==
+                          false && (
+                          <button
+                            onClick={() =>
+                              handleDone(appointment.appointmentId)
+                            }
+                            className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-4 rounded"
+                          >
+                            Done
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         )}
-      </div>
+
+        {view === "viewProfile" && (
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-4 text-gray-700">
+              View Profile
+            </h3>
+            <div>
+              <p>
+                <strong className="text-gray-900">First Name:</strong>{" "}
+                {staffFirstName}
+              </p>
+              <p>
+                <strong className="text-gray-900">Last Name:</strong>{" "}
+                {staffLastName}
+              </p>
+              <p>
+                <strong className="text-gray-900">Email:</strong> {staffEmail}
+              </p>
+              <p>
+                <strong className="text-gray-900">Phone Number:</strong>{" "}
+                {staffPhone}
+              </p>
+            </div>
+          </div>
+        )}
+        {view === "updateProfile" && (
+          <div className="bg-white p-4 rounded shadow-md">
+            <h3 className="text-xl font-semibold mb-4">Update Profile</h3>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleUpdateProfile();
+              }}
+            >
+              <div className="mb-4">
+                <label className="block text-gray-600 mb-2">First Name</label>
+                <input
+                  type="text"
+                  value={staffFirstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-600 mb-2">Last Name</label>
+                <input
+                  type="text"
+                  value={staffLastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-600 mb-2">Email</label>
+                <input
+                  type="email"
+                  value={staffEmail}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-600 mb-2">Phone Number</label>
+                <input
+                  type="text"
+                  value={staffPhone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-600 mb-2">Password</label>
+                <input
+                  type="password"
+                  value={staffPassword}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700"
+              >
+                Update Profile
+              </button>
+              {error && <p className="text-red-500 mt-2">{error}</p>}
+            </form>
+          </div>
+        )}
+      </main>
+      <ToastContainer />
     </div>
   );
 }

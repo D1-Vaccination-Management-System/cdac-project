@@ -25,7 +25,8 @@ public class VaccineController {
 
 	@PostMapping("/add-vaccine/{centerId}")
 	public ResponseEntity<?> addVaccine(@RequestBody VaccineDTO vaccine, @PathVariable Long centerId) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(vaccineService.addVaccine(vaccine, centerId));
+		ResponseEntity.status(HttpStatus.CREATED).body(vaccineService.addVaccine(vaccine, centerId));
+		return ResponseEntity.ok("Success");
 	}
 
 	@GetMapping("/available-vaccine/{centerId}")
