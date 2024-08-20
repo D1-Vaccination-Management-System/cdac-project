@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* Add this to your global CSS file */
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
+footer {
+  background-color: #fff; /* or any color you prefer */
+  padding: 1rem;
+  text-align: center;
+}
+/* Add this CSS to your global styles or specific container */
+html {
+  scroll-behavior: smooth;
+}
