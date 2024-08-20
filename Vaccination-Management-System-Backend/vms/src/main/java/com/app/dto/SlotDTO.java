@@ -2,8 +2,6 @@ package com.app.dto;
 
 import java.time.LocalDate;
 
-import com.app.entities.AvailableSlots;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +14,7 @@ import lombok.Setter;
 public class SlotDTO {
     private Long slotId;
 
-    private String slot; // This will map to AvailableSlots enum
+    private String slot; 
 
     private LocalDate date;
 

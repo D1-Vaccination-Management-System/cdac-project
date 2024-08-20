@@ -11,7 +11,7 @@ import com.app.entities.VaccinationCenter;
 
 public interface IVaccinationCenterService {
 
-	ApiResponse addVaccinationCenter(VaccinationCenterDTO dto);
+	VaccinationCenter addVaccinationCenter(VaccinationCenterDTO dto);
 
 	ApiResponse updateVaccinationCenter(Long id, VaccinationCenterDTO dto);
 

@@ -19,6 +19,5 @@ public class AppointmentDetailsDTO {
     private String patientState;
     private String patientZipCode;
     private String vaccineName;
-    private LocalDateTime appointmentDate;
-
+    private LocalDateTime appointmentDate;  
 }

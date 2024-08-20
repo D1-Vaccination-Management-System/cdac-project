@@ -40,6 +40,12 @@ function Footer() {
                   <li>
                     <Link to="/health-staff/login">Health Staff Login</Link>
                   </li>
+                  <li className="mb-4">
+                    <Link to="/register-center">
+                      Register Vaccination
+                      <br /> Center
+                    </Link>
+                  </li>
                 </ul>
               </div>
               <div>

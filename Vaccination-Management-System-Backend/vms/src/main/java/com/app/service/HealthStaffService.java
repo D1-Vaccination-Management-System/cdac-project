@@ -11,6 +11,8 @@ import com.app.dto.AppointmentDetailsDTO;
 import com.app.dto.HealthStaffDTO;
 import com.app.dto.HealthStaffUpdateDTO;
 import com.app.dto.LoginDTO;
+import com.app.dto.StaffandAppointmentIdDTO;
+import com.app.entities.Appointments;
 import com.app.entities.HealthStaff;
 import com.app.enums.Role;
 import com.app.exception.ApiException;
@@ -54,10 +56,13 @@ public class HealthStaffService implements IHealthStaffService {
 	@Override
 	public List<AppointmentDetailsDTO> getAllAppointmentsByStaffId(Long staffId) {
 		// Fetch the HealthStaff entity and throw an exception if not found
+		@SuppressWarnings("unused")
 		HealthStaff staff = healthStaffRepo.findById(staffId)
 				.orElseThrow(() -> new ResourceNotFoundException("Staff Not found with ID: " + staffId));
 
-		return appointmentRepo.getAllAppointmentsByStaffId(staffId);
+		List<AppointmentDetailsDTO> appDetails =  appointmentRepo.getAllAppointmentsByStaffId(staffId);
+		 appDetails.stream().filter(appointment -> appointment.getVaccineName() != null);
+		 return appDetails;
 	}
 
 	@Override
@@ -83,6 +88,16 @@ public class HealthStaffService implements IHealthStaffService {
 		}
 		return new ApiResponse("Staff Updated Successfully!");
 	}
+	
+	@Override
+	public String increaseAppointment(StaffandAppointmentIdDTO dto)
+	{
+		HealthStaff staff = healthStaffRepo.findById(dto.getId()).orElseThrow(()-> new ResourceNotFoundException("Staff not found"));
+		staff.setNoOfAppointments(staff.getNoOfAppointments() + 1);
+		Appointments app = appointmentRepo.findById(dto.getAppointmentId()).orElseThrow(()-> new ResourceNotFoundException("Appointment not found"));
+		app.setStaff(staff);
+		return "Success";
+	}
 
 //	public HealthStaff getHealthStaffWithAllItsAppointments(String email) {
 //		HealthStaff staffWithAllItsAppointments = healthStaffRepo.getStaffWithAllAppointmentDetails(email)
@@ -91,5 +106,10 @@ public class HealthStaffService implements IHealthStaffService {
 //		return staffWithAllItsAppointments;
 //
 //	}
+	
+	public List<AppointmentDetailsDTO> getAppointmentsWithNullVaccines(Long StaffID)
+	{
+		return appointmentRepo.findAppointmentsWithNullVaccine(StaffID);
+	}
 
 }

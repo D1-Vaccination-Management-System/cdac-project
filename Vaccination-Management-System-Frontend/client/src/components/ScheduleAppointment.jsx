@@ -104,11 +104,15 @@ function ScheduleAppointment() {
 
     const appointment = {
       patientId,
-      vaccination_center_id: parseInt(selectedCenter.id, 10),
-      bookedAppointmentDate: new Date().toISOString(),
+      vaccinationCenterId: selectedCenter.id,
+      bookedAppointmentDate: new Date(selectedDate).toISOString(),
       appointmentType,
       appointmentStatus: "SCHEDULED",
     };
+    console.log(selectedCenter.id);
+    console.log(selectedDate);
+    console.log(selectedSlot);
+    console.log(appointmentType);
 
     try {
       await scheduleAppointment(appointment);
@@ -172,12 +176,12 @@ function ScheduleAppointment() {
               placeholder="Enter Pincode"
               className="border p-2"
             />
-            <button
+            {/* <button
               onClick={filterCenters}
               className="bg-blue-500 text-white p-2 rounded"
             >
               Search Centers
-            </button>
+            </button> */}
           </div>
 
           <select
@@ -209,11 +213,10 @@ function ScheduleAppointment() {
             {availableSlots.map((slot) => (
               <button
                 key={slot.slotId}
-                className={`border p-2 text-left ${
-                  selectedSlot && selectedSlot.slotId === slot.slotId
-                    ? "bg-gray-200"
-                    : "bg-white"
-                }`}
+                className={`border p-2 text-left ${selectedSlot && selectedSlot.slotId === slot.slotId
+                  ? "bg-gray-200"
+                  : "bg-white"
+                  }`}
                 onClick={() => handleSlotClick(slot)}
               >
                 Slot {slot.slot} - Capacity: {slot.capacity}

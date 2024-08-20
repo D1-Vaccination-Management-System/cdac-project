@@ -6,7 +6,7 @@ import { useLocation } from "react-router-dom";
 
 function Layout() {
   const location = useLocation();
-  const navbarPaths = ["/", "/about", "/login", "/register", "/contact"];
+  const navbarPaths = ["/", "/about", "/login", "/register", "/contact", "/register-center"];
   return (
     <>
       {navbarPaths.includes(location.pathname) && <Navbar />}

@@ -18,6 +18,7 @@ import com.app.dto.AppointmentDetailsDTO;
 import com.app.dto.HealthStaffDTO;
 import com.app.dto.HealthStaffUpdateDTO;
 import com.app.dto.LoginDTO;
+import com.app.dto.StaffandAppointmentIdDTO;
 import com.app.service.IHealthStaffService;
 
 @RestController
@@ -54,5 +55,14 @@ public class HealthStaffController {
 			@RequestBody HealthStaffUpdateDTO healthStaffUpdateDTO) {
 		return ResponseEntity.ok(healthStaffService.updateHealthStaff(email, healthStaffUpdateDTO));
 	}
-
+	
+	@PostMapping("/incrementAppointments")
+	public ResponseEntity<?> incrementAppointments(@RequestBody StaffandAppointmentIdDTO dto ) {
+		return ResponseEntity.ok(healthStaffService.increaseAppointment(dto));
+	}
+	
+	@GetMapping("/get-all-appointment-by-staff-id-null-vaccines/{staffId}")
+	public ResponseEntity<?> getAppointmentswithNullvaccines(@PathVariable Long staffId) {
+		return ResponseEntity.ok(healthStaffService.getAppointmentsWithNullVaccines(staffId));
+	} 
 }

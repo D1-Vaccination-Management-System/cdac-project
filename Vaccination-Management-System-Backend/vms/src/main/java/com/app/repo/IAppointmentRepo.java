@@ -31,4 +31,13 @@ public interface IAppointmentRepo extends JpaRepository<Appointments, Long> {
 	List<AppointmentDetailsDTO> getAllAppointmentsByStaffId(@Param("staffId") Long staffId);
 
 	Appointments findByAppointmentId(Long appointmentId);
+	
+	@Query("SELECT new com.app.dto.AppointmentDetailsDTO(ap.appointmentId, p.firstName, a.street, a.city, a.state, a.zipCode, vc.centerName, ap.bookedAppointmentDate) "
+            + "FROM Appointments ap "
+            + "JOIN ap.patient p "
+            + "JOIN p.address a "
+            + "JOIN ap.vaccinationCenter vc "
+            + "WHERE ap.staff.userId = :staffId AND ap.vaccine IS NULL")
+	List<AppointmentDetailsDTO> findAppointmentsWithNullVaccine(@Param("staffId") Long staffId);
+
 }

@@ -48,12 +48,15 @@ public class AppointmentService implements IAppointmentService {
 	public List<HomeVisitAppointmentDTO> getScheduledHomeVisitAppointments() {
 		return appointmentRepo
 				.findByAppointmentTypeAndAppointmentStatus(Appointment_Type.HOME_VISIT, Appointment_Status.SCHEDULED)
-				.stream().map(appointment -> mapper.map(appointment, HomeVisitAppointmentDTO.class))
+				.stream()
+				.filter(appointment -> appointment.getStaff() == null)
+				.map(appointment -> mapper.map(appointment, HomeVisitAppointmentDTO.class))
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public ApiResponse addAppointment(AppointmentDTO appointmentDTO) {
+		System.out.println(appointmentDTO.getPatientId() + " " + appointmentDTO.getVaccinationCenterId());
 		Patient patient = patientRepo.findById(appointmentDTO.getPatientId())
 				.orElseThrow(() -> new ResourceNotFoundException("Cannot Find Patient!"));
 
@@ -99,13 +102,13 @@ public class AppointmentService implements IAppointmentService {
 		if (appointment == null)
 			return "Appointment not found!";
 
-		Vaccines vaccine = vaccineRepo.findByVaccineNameAndVaccinationCenter(dto.getVaccines(),
-				appointment.getVaccinationCenter());
-		if (vaccine == null)
-			return "Vaccine not found!";
+//		Vaccines vaccine = vaccineRepo.findByVaccineNameAndVaccinationCenter(dto.getVaccines(),
+//				appointment.getVaccinationCenter());
+//		if (vaccine == null)
+//			return "Vaccine not found!";
 
 		appointment.setAppointmentStatus(Appointment_Status.PENDING);
-		appointment.setVaccine(vaccine);
+		appointment.setVaccine(null);
 		appointmentRepo.save(appointment);
 
 		return "Vaccine Marked as Done";

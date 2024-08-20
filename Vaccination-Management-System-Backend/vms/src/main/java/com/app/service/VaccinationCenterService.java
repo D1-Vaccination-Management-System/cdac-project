@@ -58,7 +58,7 @@ public class VaccinationCenterService implements IVaccinationCenterService {
 	}
 
 	@Override
-	public ApiResponse addVaccinationCenter(VaccinationCenterDTO dto) {
+	public VaccinationCenter addVaccinationCenter(VaccinationCenterDTO dto) {
 		VaccinationCenter vc = mapper.map(dto, VaccinationCenter.class);
 		String centerName = vc.getCenterName().toLowerCase();
 		if (!vaccinationCenter.existsByCenterName(centerName)) {
@@ -70,7 +70,7 @@ public class VaccinationCenterService implements IVaccinationCenterService {
 		} else {
 			throw new ApiException("Center Already Exists!");
 		}
-		return new ApiResponse("Success");
+		return vc;
 	}
 
 	@Override

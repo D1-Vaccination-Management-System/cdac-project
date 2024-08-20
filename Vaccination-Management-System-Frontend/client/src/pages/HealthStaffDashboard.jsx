@@ -1,28 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   assignVaccineToAppointment,
   assignVaccineToAppointmentDue,
   getAllAppointmentsByStaffId,
   updateStaffProfile,
 } from "../service/healthstaff";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 import VaccineDropdown from "../components/VaccineDropdown";
 
 function HealthStaffDashboard() {
   const [appointments, setAppointments] = useState([]);
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [vaccineName, setVaccineName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [view, setView] = useState("home");
-  const [doneButtonsVisibility, setDoneButtonsVisibility] = useState({});
 
   const [staffFirstName, setFirstName] = useState("");
   const [staffLastName, setLastName] = useState("");
   const [staffEmail, setEmail] = useState("");
   const [staffPhone, setPhone] = useState("");
   const [staffPassword, setPassword] = useState("");
+
+  const [searchName, setSearchName] = useState("");
+  const [searchDate, setSearchDate] = useState("");
 
   const navigate = useNavigate();
 
@@ -35,21 +39,21 @@ function HealthStaffDashboard() {
     staffPhone: sessionStorage.getItem("staffPhone"),
   };
 
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const response = await getAllAppointmentsByStaffId(
-          storedStaffData.staffId
-        );
-        setAppointments(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-        setLoading(false);
-        toast.error("Failed to load appointments");
-      }
-    };
+  const fetchAppointments = async () => {
+    try {
+      const response = await getAllAppointmentsByStaffId(storedStaffData.staffId);
+      console.log(response.data);
+      setAppointments(response.data);
+      setFilteredAppointments(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+      setLoading(false);
+      toast.error("Failed to load appointments");
+    }
+  };
 
+  useEffect(() => {
     fetchAppointments();
 
     if (storedStaffData.staffEmail) {
@@ -63,43 +67,26 @@ function HealthStaffDashboard() {
 
   const handleDue = async (appointmentId) => {
     try {
-      const response = await assignVaccineToAppointmentDue(
-        appointmentId,
-        vaccineName
-      );
+      const response = await assignVaccineToAppointmentDue(appointmentId, vaccineName);
       console.log(`Mark appointment ${appointmentId} as Due`, response.data);
-
-      // Show toast and make the "Done" button visible again
       toast.warning("Appointment Due!");
-      setDoneButtonsVisibility((prev) => ({
-        ...prev,
-        [appointmentId]: true,
-      }));
     } catch (error) {
       console.error("Failed to mark appointment as Due:", error);
       toast.warning("Failed to mark as Due");
     }
+    fetchAppointments();
   };
 
   const handleDone = async (appointmentId) => {
     try {
-      const response = await assignVaccineToAppointment(
-        appointmentId,
-        vaccineName
-      );
-      console.log(response);
+      const response = await assignVaccineToAppointment(appointmentId, vaccineName);
       console.log(`Mark appointment ${appointmentId} as Done`, response.data);
-
-      // Show toast and hide the "Done" button
       toast.success("Appointment marked as Successful!");
-      setDoneButtonsVisibility((prev) => ({
-        ...prev,
-        [appointmentId]: false,
-      }));
     } catch (error) {
       console.error("Failed to mark appointment as Done:", error);
       toast.error("Failed to mark as Done");
     }
+    fetchAppointments();
   };
 
   const handleLogout = () => {
@@ -139,6 +126,20 @@ function HealthStaffDashboard() {
       toast.error("Failed to update profile");
     }
   };
+
+  // Filter appointments based on search criteria
+  const filterAppointments = () => {
+    const filtered = appointments.filter((appointment) => {
+      const nameMatch = appointment.patientName.toLowerCase().includes(searchName.toLowerCase());
+      const dateMatch = searchDate ? appointment.appointmentDate.includes(searchDate) : true;
+      return nameMatch && dateMatch;
+    });
+    setFilteredAppointments(filtered);
+  };
+
+  useEffect(() => {
+    filterAppointments();
+  }, [searchName, searchDate, appointments]);
 
   return (
     <div className="container mx-auto p-4 flex">
@@ -195,9 +196,29 @@ function HealthStaffDashboard() {
         <br />
         {view === "home" && (
           <div>
-            <h2 className="text-2xl font-bold mb-4">
-              Your Scheduled Appointments
-            </h2>
+            <h2 className="text-2xl font-bold mb-4">Your Scheduled Appointments</h2>
+
+            <div className="mb-4">
+              <label className="block text-gray-600 mb-2">Search by Name</label>
+              <input
+                type="text"
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                className="w-full p-2 border rounded"
+                placeholder="Enter patient name"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-gray-600 mb-2">Search by Appointment Date</label>
+              <input
+                type="date"
+                value={searchDate}
+                onChange={(e) => setSearchDate(e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+
             {loading ? (
               <p>Loading...</p>
             ) : (
@@ -206,32 +227,24 @@ function HealthStaffDashboard() {
                   <tr>
                     <th className="py-2 px-4 border-b">Patient Name</th>
                     <th className="py-2 px-4 border-b">Patient Address</th>
-                    <th className="py-2 px-4 border-b">
-                      Vaccination Center Name
-                    </th>
+                    <th className="py-2 px-4 border-b">Vaccination Center Name</th>
                     <th className="py-2 px-4 border-b">Vaccine List</th>
                     <th className="py-2 px-4 border-b">Appointment Date</th>
                     <th className="py-2 px-4 border-b">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {appointments.map((appointment, index) => (
+                  {filteredAppointments.map((appointment, index) => (
                     <tr key={index}>
-                      <td className="py-2 px-4 border-b">
-                        {appointment.patientName}
-                      </td>
+                      <td className="py-2 px-4 border-b">{appointment.patientName}</td>
                       <td className="py-2 px-4 border-b">
                         {`${appointment.patientStreet}, ${appointment.patientCity}, ${appointment.patientState} - ${appointment.patientZipCode}`}
                       </td>
-                      <td className="py-2 px-4 border-b">
-                        {appointment.vaccinationCenterName}
-                      </td>
+                      <td className="py-2 px-4 border-b">{appointment.vaccineName}</td>
                       <td className="py-2 px-4 border-b">
                         <VaccineDropdown setVaccineName={setVaccineName} />
                       </td>
-                      <td className="py-2 px-4 border-b">
-                        {appointment.appointmentDate}
-                      </td>
+                      <td className="py-2 px-4 border-b">{appointment.appointmentDate}</td>
                       <td className="py-2 px-4 border-b">
                         <button
                           onClick={() => handleDue(appointment.appointmentId)}
@@ -239,17 +252,12 @@ function HealthStaffDashboard() {
                         >
                           Due
                         </button>
-                        {doneButtonsVisibility[appointment.appointmentId] !==
-                          false && (
-                          <button
-                            onClick={() =>
-                              handleDone(appointment.appointmentId)
-                            }
-                            className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-4 rounded"
-                          >
-                            Done
-                          </button>
-                        )}
+                        <button
+                          onClick={() => handleDone(appointment.appointmentId)}
+                          className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-4 rounded"
+                        >
+                          Done
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -261,28 +269,16 @@ function HealthStaffDashboard() {
 
         {view === "viewProfile" && (
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4 text-gray-700">
-              View Profile
-            </h3>
+            <h3 className="text-xl font-semibold mb-4 text-gray-700">View Profile</h3>
             <div>
-              <p>
-                <strong className="text-gray-900">First Name:</strong>{" "}
-                {staffFirstName}
-              </p>
-              <p>
-                <strong className="text-gray-900">Last Name:</strong>{" "}
-                {staffLastName}
-              </p>
-              <p>
-                <strong className="text-gray-900">Email:</strong> {staffEmail}
-              </p>
-              <p>
-                <strong className="text-gray-900">Phone Number:</strong>{" "}
-                {staffPhone}
-              </p>
+              <p><strong className="text-gray-900">First Name:</strong> {staffFirstName}</p>
+              <p><strong className="text-gray-900">Last Name:</strong> {staffLastName}</p>
+              <p><strong className="text-gray-900">Email:</strong> {staffEmail}</p>
+              <p><strong className="text-gray-900">Phone Number:</strong> {staffPhone}</p>
             </div>
           </div>
         )}
+
         {view === "updateProfile" && (
           <div className="bg-white p-4 rounded shadow-md">
             <h3 className="text-xl font-semibold mb-4">Update Profile</h3>

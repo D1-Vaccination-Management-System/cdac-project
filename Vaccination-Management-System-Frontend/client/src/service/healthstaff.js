@@ -28,9 +28,13 @@ export async function getHealthStaff(centerId) {
   return response;
 }
 
-export async function addAppointment(id) {
+export async function increaseAppointment(id, appointmentId) {
+  const body = {
+    id,
+    appointmentId
+  }
   const response = await axios.post(
-    `${API_BASE_URL}/health-staff/incrementAppointments/${id}`
+    `${API_BASE_URL}/health-staff/incrementAppointments`, body
   );
   return response;
 }
@@ -44,7 +48,7 @@ export async function healthStaffLogin(email, password) {
 export async function getAllAppointmentsByStaffId(staffId) {
   try {
     const response = await axios.get(
-      `${API_BASE_URL}/health-staff/get-all-appointments-by-staff-id/${staffId}`
+      `${API_BASE_URL}/health-staff/get-all-appointment-by-staff-id-null-vaccines/${staffId}`
     );
     return response;
   } catch (error) {

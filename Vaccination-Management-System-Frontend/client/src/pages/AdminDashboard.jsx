@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getVaccinationCenterDetails } from "../service/admin";
 import { toast, ToastContainer } from "react-toastify";
-import { getHealthStaff, registerStaff } from "../service/healthstaff";
+import {
+  getHealthStaff,
+  increaseAppointment,
+  registerStaff,
+} from "../service/healthstaff";
 import { addVaccine } from "../service/vaccine";
 import { getHomeVisitAppointment } from "../service/appointment";
-import { addAppointment } from "../service/healthstaff"; // Import the new API function
 
 const AdminDashboard = () => {
   const [vaccinationDetails, setVaccinationDetails] = useState(null);
@@ -27,6 +30,17 @@ const AdminDashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [selectedStaff, setSelectedStaff] = useState({});
   const navigate = useNavigate();
+
+  const fetchAppointments = async () => {
+    if (view === "home") {
+      try {
+        const response = await getHomeVisitAppointment();
+        setAppointments(response.data);
+      } catch (error) {
+        setError("Failed to fetch appointments.");
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchVaccinationDetails = async () => {
@@ -50,16 +64,7 @@ const AdminDashboard = () => {
       }
     };
 
-    const fetchAppointments = async () => {
-      if (view === "home") {
-        try {
-          const response = await getHomeVisitAppointment();
-          setAppointments(response.data);
-        } catch (error) {
-          setError("Failed to fetch appointments.");
-        }
-      }
-    };
+    fetchAppointments();
 
     const fetchHealthStaff = async () => {
       try {
@@ -114,25 +119,27 @@ const AdminDashboard = () => {
   };
 
   const handleStaffChange = (appointmentId, staffId) => {
+    console.log("StaffId", staffId);
     setSelectedStaff(staffId);
-    // setSelectedStaff((prevState) => ({
-    //   ...prevState,
-    //   [appointmentId]: staffId,
-    // }));
+    setSelectedStaff((prevState) => ({
+      ...prevState,
+      [appointmentId]: staffId,
+    }));
+    console.log(selectedStaff);
   };
 
   const handleApprove = async (id) => {
-    console.log(id);
+    console.log("Appoinment ID", id);
     if (selectedStaff === null) {
       toast.error("Please select a staff member to approve the appointment.");
       return;
     }
-
     try {
-      await addAppointment(selectedStaff);
+      await increaseAppointment(selectedStaff[0], id);
       toast.success(
         "Appointment approved and staff's appointment count updated."
       );
+      fetchAppointments();
       // Optionally: remove the appointment from the list or refresh the list
     } catch (error) {
       toast.error("Failed to approve appointment.");
@@ -156,7 +163,7 @@ const AdminDashboard = () => {
     };
     try {
       const response = await registerStaff(staffData);
-      if (response.status === 201) {
+      if (response.status === 200) {
         toast.success("Registered Successfully");
         setView("home");
       } else {
@@ -274,7 +281,7 @@ const AdminDashboard = () => {
                         <p>
                           Time:{" "}
                           {new Date(
-                            appointment.bookedAppointmentDate
+                            appointment.createdAppointmentOn
                           ).toLocaleTimeString()}
                         </p>
                         <div className="mt-2">
@@ -331,7 +338,7 @@ const AdminDashboard = () => {
                 Details of All Health Staff
               </h3>
               {StaffDetails.length > 0 ? (
-                <table className="min-w-full table-auto border-collapse border border-gray-300">
+                <table className="min-w-full table-auto border-collapse border border-gray-300 capitalize">
                   <thead>
                     <tr className="bg-gray-200">
                       <th className="border border-gray-300 px-4 py-2">
@@ -366,7 +373,7 @@ const AdminDashboard = () => {
                         <td className="border border-gray-300 px-4 py-2">
                           {staff.lastName}
                         </td>
-                        <td className="border border-gray-300 px-4 py-2">
+                        <td className="border border-gray-300 px-4 py-2 lowercase">
                           {staff.email}
                         </td>
                         <td className="border border-gray-300 px-4 py-2">

@@ -24,24 +24,23 @@ export const getAvailableSlots = async (centerId, date) => {
   }
 };
 
-// Update slot capacity
-export const updateSlotCapacity = async (
-  vaccinationCenterId,
-  slotName,
-  date
-) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/slots/update-capacity`, {
-      vaccinationCenterId,
-      slotName,
-      date,
-    });
-    return response;
-  } catch (error) {
-    console.error("Error updating slot capacity:", error);
-    throw error;
-  }
-};
+// export const updateSlotCapacity = async (
+//   vaccinationCenterId,
+//   slotName,
+//   date
+// ) => {
+//   try {
+//     const response = await axios.post(`${API_BASE_URL}/slots/update-capacity`, {
+//       vaccinationCenterId,
+//       slotName,
+//       date,
+//     });
+//     return response;
+//   } catch (error) {
+//     console.error("Error updating slot capacity:", error);
+//     throw error;
+//   }
+// };
 
 // Add a new slot
 // Add a new slot

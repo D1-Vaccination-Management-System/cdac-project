@@ -13,6 +13,7 @@ import AdminLogin from "./pages/AdminLogin";
 import HealthStaffLogin from "./pages/HealthStaffLogin";
 import HealthStaffDashboard from "./pages/HealthStaffDashboard";
 import Contact from "./pages/Contact";
+import CenterRegister from "./pages/CenterRegister";
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
       { path: "/health-staff/login", element: <HealthStaffLogin /> },
       { path: "/health-staff/dashboard", element: <HealthStaffDashboard /> },
       { path: "/contact", element: <Contact /> },
+      { path: "/register-center", element: <CenterRegister /> }
     ],
   },
 ]);
